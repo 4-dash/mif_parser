@@ -1,0 +1,32 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `Heading1'>
+ <ParaLine
+  <String `Chapter One'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Hello world.'>
+ >
+ <ParaLine
+  <String `This paragraph has another line.'>
+ >
+>
+
+<Para
+ <PgfTag `Heading2'>
+ <ParaLine
+  <String `A subsection'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Some more content.'>
+ >
+>
