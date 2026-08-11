@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in mif_converter.gemspec
+# Specify your gem's dependencies in mif_parser.gemspec
 gemspec
 
 gem "irb"

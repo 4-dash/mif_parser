@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/mif_converter/version"
+require_relative "lib/mif_parser/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "mif_converter"
-  spec.version = MifConverter::VERSION
+  spec.name = "mif_parser"
+  spec.version = MifParser::VERSION
   spec.authors = ["4-dash"]
   spec.email = ["120916864+4-dash@users.noreply.github.com"]
 

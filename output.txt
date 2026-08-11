@@ -1,4 +1,0 @@
-<paragraph style="heading-1"><line>Chapter One</line></paragraph>
-<paragraph style="body"><line>Hello world.</line><line>This paragraph has another line.</line></paragraph>
-<paragraph style="heading-2"><line>A subsection</line></paragraph>
-<paragraph style="body"><line>Some more content.</line></paragraph>
