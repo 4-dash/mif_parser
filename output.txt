@@ -1,0 +1,229 @@
+MIF PARSER OUTPUT
+====================================================================================================
+
+[1]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "3.1 volts are required for this device."
+import_text:   "3.1 volts are required for this device."
+
+[2]
+tag:           "BodyText"
+heading:       false
+heading_level: nil
+text:          "2.5 meters is the minimum cable length."
+import_text:   "2.5 meters is the minimum cable length."
+
+[3]
+tag:           "Normal"
+heading:       false
+heading_level: nil
+text:          "1.2 is a valid software version number."
+import_text:   "1.2 is a valid software version number."
+
+[4]
+tag:           "Heading1"
+heading:       true
+heading_level: 0
+text:          "1 Main Chapter"
+import_text:   "Main Chapter"
+
+[5]
+tag:           "Heading2"
+heading:       true
+heading_level: 1
+text:          "1.1 First Subsection"
+import_text:   "First Subsection"
+
+[6]
+tag:           "Heading3"
+heading:       true
+heading_level: 2
+text:          "1.1.1 Deep Section"
+import_text:   "Deep Section"
+
+[7]
+tag:           "CustomStyle"
+heading:       true
+heading_level: 0
+text:          "2 Custom Numbered Heading"
+import_text:   "Custom Numbered Heading"
+
+[8]
+tag:           "CustomStyle"
+heading:       true
+heading_level: 1
+text:          "2.1 Custom Numbered Subheading"
+import_text:   "Custom Numbered Subheading"
+
+[9]
+tag:           "CustomStyle"
+heading:       true
+heading_level: 2
+text:          "2.1.1 Custom Numbered Deep Heading"
+import_text:   "Custom Numbered Deep Heading"
+
+[10]
+tag:           "CustomStyle"
+heading:       false
+heading_level: nil
+text:          "2026 is the current year."
+import_text:   "2026 is the current year."
+
+[11]
+tag:           "CustomStyle"
+heading:       false
+heading_level: nil
+text:          "3.14159 is approximately pi."
+import_text:   "3.14159 is approximately pi."
+
+[12]
+tag:           "CustomStyle"
+heading:       false
+heading_level: nil
+text:          "10.20 EUR is the listed price."
+import_text:   "10.20 EUR is the listed price."
+
+[13]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "This paragraph has several sentences. They should remain one MIF paragraph. Fragment splitting happens later in the Rails app."
+import_text:   "This paragraph has several sentences. They should remain one MIF paragraph. Fragment splitting happens later in the Rails app."
+
+[14]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "First part of the paragraph. Second ParaLine of the same paragraph. Third ParaLine still belongs to the same paragraph."
+import_text:   "First part of the paragraph. Second ParaLine of the same paragraph. Third ParaLine still belongs to the same paragraph."
+
+[15]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "Apostrophe: '. Backtick: `. Backslash: \\."
+import_text:   "Apostrophe: '. Backtick: `. Backslash: \\."
+
+[16]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "Ruby example: `bundle exec rails console`."
+import_text:   "Ruby example: `bundle exec rails console`."
+
+[17]
+tag:           "Heading1"
+heading:       true
+heading_level: 0
+text:          "3 Heading Without Trailing Period"
+import_text:   "Heading Without Trailing Period"
+
+[18]
+tag:           "Heading2"
+heading:       true
+heading_level: 1
+text:          "3.1. Heading With Trailing Period"
+import_text:   "Heading With Trailing Period"
+
+[19]
+tag:           "Heading3"
+heading:       true
+heading_level: 2
+text:          "3.1.1. Another Trailing Period Heading"
+import_text:   "Another Trailing Period Heading"
+
+[20]
+tag:           "CustomStyle"
+heading:       true
+heading_level: 1
+text:          "4.2. Custom Heading With Trailing Period"
+import_text:   "Custom Heading With Trailing Period"
+
+[21]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "4.2. This must still be body text because its tag is Body."
+import_text:   "4.2. This must still be body text because its tag is Body."
+
+[22]
+tag:           "Title"
+heading:       true
+heading_level: 0
+text:          "Document Title"
+import_text:   "Document Title"
+
+[23]
+tag:           "ChapterTitle"
+heading:       true
+heading_level: 0
+text:          "Another Chapter Title"
+import_text:   "Another Chapter Title"
+
+[24]
+tag:           "H1"
+heading:       true
+heading_level: 0
+text:          "Short H1 Heading"
+import_text:   "Short H1 Heading"
+
+[25]
+tag:           "H2"
+heading:       true
+heading_level: 1
+text:          "Short H2 Heading"
+import_text:   "Short H2 Heading"
+
+[26]
+tag:           "Head3"
+heading:       true
+heading_level: 2
+text:          "Head3 Style Heading"
+import_text:   "Head3 Style Heading"
+
+[27]
+tag:           "Paragraph"
+heading:       false
+heading_level: nil
+text:          "5.1 This should not become a heading."
+import_text:   "5.1 This should not become a heading."
+
+[28]
+tag:           "Text"
+heading:       false
+heading_level: nil
+text:          "6.2 This should also remain normal text."
+import_text:   "6.2 This should also remain normal text."
+
+[29]
+tag:           "UnknownStyle"
+heading:       true
+heading_level: 1
+text:          "7.1 Unknown style with hierarchical numbering"
+import_text:   "Unknown style with hierarchical numbering"
+
+[30]
+tag:           "UnknownStyle"
+heading:       false
+heading_level: nil
+text:          "Version 7.1 is installed."
+import_text:   "Version 7.1 is installed."
+
+[31]
+tag:           nil
+heading:       true
+heading_level: 1
+text:          "8.1 Paragraph with no PgfTag"
+import_text:   "Paragraph with no PgfTag"
+
+[32]
+tag:           "Body"
+heading:       false
+heading_level: nil
+text:          "Final paragraph."
+import_text:   "Final paragraph."
+
+====================================================================================================
+TOTAL: 32

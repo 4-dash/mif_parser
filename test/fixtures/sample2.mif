@@ -1,0 +1,200 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `Heading1'>
+ <ParaLine
+  <String `1 Introduction'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This is the first sentence. '>
+  <String `This is the second sentence.'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This paragraph contains a quoted value: \'example\'. '>
+  <String `It also contains multiple MIF String elements.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading2'>
+ <ParaLine
+  <String `1.1 Installation'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Install the application before continuing. '>
+ >
+ <ParaLine
+  <String `After installation, restart the service.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading3'>
+ <ParaLine
+  <String `1.1.1 System Requirements'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Ruby 3.3 or newer is recommended. '>
+  <String `A PostgreSQL database is also required.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading3'>
+ <ParaLine
+  <String `1.1.2 Configuration'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Open the configuration file. '>
+  <String `Set the database URL. '>
+  <String `Then restart the application.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading2'>
+ <ParaLine
+  <String `1.2 Usage'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `The application can be started from the command line.'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Run the command \`bundle exec rails server\`. '>
+  <String `The server should then be available locally.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading1'>
+ <ParaLine
+  <String `2 Advanced Features'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Advanced features are optional. '>
+  <String `They can be enabled individually.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading2'>
+ <ParaLine
+  <String `2.1 Importing Documents'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `DOCX, XLSX, TMX, MIF, TXT, HTML, CSV, and XML files can be imported.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading3'>
+ <ParaLine
+  <String `2.1.1 Sentence Segmentation'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This paragraph has three sentences. '>
+  <String `The Segment importer receives the whole paragraph. '>
+  <String `PragmaticSegmenter can later create three Fragments.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Special characters should also survive parsing: apostrophe \', backtick \`, and backslash \\.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `CustomStyle'>
+ <ParaLine
+  <String `3 Numbered Heading Without Heading Style'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `The parser should detect the previous paragraph as heading level zero because of its visible numbering.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `CustomStyle'>
+ <ParaLine
+  <String `3.1 Numbered Subheading Without Heading Style'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This tests heading detection from the text rather than from PgfTag.'>
+ >
+> # end of Para
+
+
+<Para
+ <PgfTag `Heading1'>
+ <ParaLine
+  <String `4 Final Chapter'>
+ >
+> # end of Para
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This is the final paragraph. '>
+  <String `The parser should finish with this text correctly.'>
+ >
+> # end of Para
