@@ -14,6 +14,7 @@ module MifParser
       paragraphs = []
 
       current_para = nil
+      current_tag = nil
 
       each_line do |raw_line|
         line = raw_line.strip
@@ -32,8 +33,12 @@ module MifParser
           #
           paragraphs << build_paragraph(current_para) if current_para
 
+          #
+          # A Para without its own PgfTag inherits the current
+          # paragraph format from the preceding paragraph.
+          #
           current_para = {
-            tag: nil,
+            tag: current_tag,
             strings: [],
           }
 
@@ -42,7 +47,18 @@ module MifParser
 
         next unless current_para
 
-        parse_paragraph_tag(line, current_para)
+        #
+        # If this paragraph explicitly specifies a PgfTag,
+        # it becomes both this paragraph's tag and the current
+        # tag inherited by following paragraphs.
+        #
+        tag = parse_paragraph_tag(line)
+
+        unless tag.nil?
+          current_tag = tag
+          current_para[:tag] = tag
+        end
+
         parse_strings(line, current_para)
 
         #
@@ -89,19 +105,19 @@ module MifParser
     end
 
     #
-    # Example:
+    # Examples:
     #
     # <PgfTag `Heading1'>
     # <PgfTag `Body'>
     #
-    def parse_paragraph_tag(line, current_para)
+    def parse_paragraph_tag(line)
       match = line.match(
         /<PgfTag\s+`((?:\\.|[^'])*)'>/
       )
 
-      return unless match
+      return nil unless match
 
-      current_para[:tag] = decode_string(match[1])
+      decode_string(match[1])
     end
 
     #

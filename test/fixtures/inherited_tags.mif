@@ -1,0 +1,40 @@
+<MIFFile 7.00>
+
+<Para
+  <PgfTag `Heading1'>
+  <ParaLine
+    <String `1 Main Chapter'>
+  >
+> # end of Para
+
+<Para
+  <ParaLine
+    <String `1.1 Inherited Heading'>
+  >
+> # end of Para
+
+<Para
+  <PgfTag `Body'>
+  <ParaLine
+    <String `This is normal body text.'>
+  >
+> # end of Para
+
+<Para
+  <ParaLine
+    <String `This body paragraph inherits the Body tag.'>
+  >
+> # end of Para
+
+<Para
+  <PgfTag `Heading2'>
+  <ParaLine
+    <String `1.2 Another Heading'>
+  >
+> # end of Para
+
+<Para
+  <ParaLine
+    <String `1.2.1 This inherits Heading2'>
+  >
+> # end of Para
