@@ -1,0 +1,91 @@
+<MIFFile 7.00>
+
+<Para
+ <Unique 100001>
+ <PgfTag `030 Title2'>
+ <PgfNumString `2.1\t'>
+ <ParaLine
+  <String `General Requirements'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100002>
+ <PgfTag `030 Title3'>
+ <PgfNumString `2.1.1\t'>
+ <ParaLine
+  <String `Wire Electrode Selection'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100003>
+ <PgfTag `030 Title4'>
+ <PgfNumString `2.1.1.1\t'>
+ <ParaLine
+  <String `Electrode Diameter'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100004>
+ <PgfTag `600 Fig Title'>
+ <PgfNumString `Fig. 5.2.1  '>
+ <ParaLine
+  <String `Wire Feed System'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100005>
+ <PgfTag `600 Fig Title'>
+ <PgfNumString `Figure 5.2.2  '>
+ <ParaLine
+  <String `Electrode Arrangement'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100006>
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This is a normal body paragraph without numbering.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100007>
+ <PgfTag `Numbered List'>
+ <PgfNumString `1.\t'>
+ <ParaLine
+  <String `This is a numbered list item, not automatically a heading.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100008>
+ <PgfTag `Numbered List'>
+ <PgfNumString `2.\t'>
+ <ParaLine
+  <String `This is another numbered list item.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100009>
+ <PgfTag `030 Title3'>
+ <PgfNumString `3.4\t'>
+ <PgfReferenced Yes>
+ <ParaLine
+  <TextRectID 132>
+  <String `Power Source Selection'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 100010>
+ <PgfTag `600 Fig Title'>
+ <PgfNumString `Fig. 5.3.1  '>
+ <ParaLine
+ > # end of ParaLine
+> # end of Para

@@ -16,6 +16,10 @@ module MifParser
       elements.select { |element| element.is_a?(Paragraph) }
     end
 
+    def tables
+      elements.select { |element| element.is_a?(Table) }
+    end
+
     def empty?
       elements.empty?
     end

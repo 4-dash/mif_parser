@@ -1,22 +1,19 @@
 module MifParser
   class Paragraph
-    attr_reader :text, :tag
+    attr_reader :tag, :number_string, :raw_text
 
-    def initialize(text:, tag: nil)
-      @text = text.to_s
+    def initialize(text:, tag: nil, number_string: nil)
+      @raw_text = text.to_s
       @tag = tag
+      @number_string = number_string
     end
 
-    def heading?
-      !heading_level.nil?
+    def interpret(interpreter = Interpreter.default)
+      interpreter.interpret(self)
     end
 
-    def body?
-      !heading?
-    end
-
-    def heading_level
-      level_from_tag
+    def text
+      interpret.text
     end
 
     def import_text
@@ -25,34 +22,16 @@ module MifParser
 
     alias_method :clean_text, :import_text
 
-    private
-
-    def level_from_tag
-      value = tag.to_s.strip
-
-      case value
-      when /\Aheading[\s_-]*(\d+)\z/i
-        normalize_level(Regexp.last_match(1))
-
-      when /\Ahead[\s_-]*(\d+)\z/i
-        normalize_level(Regexp.last_match(1))
-
-      when /\Ah[\s_-]*(\d+)\z/i
-        normalize_level(Regexp.last_match(1))
-
-      when /\Achapter[\s_-]*title\z/i
-        0
-
-      when /\Atitle\z/i
-        0
-
-      else
-        nil
-      end
+    def heading?
+      interpret.heading?
     end
 
-    def normalize_level(number)
-      [number.to_i - 1, 0].max
+    def body?
+      interpret.body?
+    end
+
+    def heading_level
+      interpret.heading_level
     end
   end
 end

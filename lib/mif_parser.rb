@@ -1,7 +1,10 @@
 require_relative "mif_parser/version"
+
 require_relative "mif_parser/document"
+require_relative "mif_parser/interpreter"
 require_relative "mif_parser/paragraph"
 require_relative "mif_parser/parser"
+require_relative "mif_parser/table"
 
 module MifParser
   def self.parse(input)
