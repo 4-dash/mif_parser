@@ -13,11 +13,11 @@ module MifParser
     end
 
     def paragraphs
-      elements.select { |element| element.is_a?(Paragraph) }
+      elements_of(Paragraph)
     end
 
     def tables
-      elements.select { |element| element.is_a?(Table) }
+      elements_of(Table)
     end
 
     def empty?
@@ -26,6 +26,14 @@ module MifParser
 
     def size
       elements.size
+    end
+
+    private
+
+    def elements_of(type)
+      elements.select do |element|
+        element.is_a?(type)
+      end
     end
   end
 end
