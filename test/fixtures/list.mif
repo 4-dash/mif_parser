@@ -1,0 +1,83 @@
+<MIFFile 9.00> # Generated test MIF
+
+<Para
+ <Unique 239740>
+ <PgfTag `040 Title4'>
+ <PgfNumString `4.3\t'>
+ <ParaLine
+  <String `Wire Breakage Tests'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239750>
+ <PgfTag `050 Title5'>
+ <PgfNumString `(1)\t'>
+ <PgfReferenced Yes>
+ <ParaLine
+  <String `Problem'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239752>
+ <PgfTag `220 List n=1)'>
+ <PgfNumString `1)\t'>
+ <ParaLine
+  <String `The wire breaks the moment the operation starts.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239754>
+ <PgfTag `221 List n+)'>
+ <PgfNumString `2)\t'>
+ <ParaLine
+  <String `The wire breaks very often during the operation.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239756>
+ <PgfTag `221 List n+)'>
+ <PgfNumString `3)\t'>
+ <ParaLine
+  <String `The wire breaks at the workpiece section.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239760>
+ <PgfTag `050 Title5'>
+ <PgfNumString `(2)\t'>
+ <PgfReferenced Yes>
+ <ParaLine
+  <String `Possible causes'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239762>
+ <PgfTag `220 List n=1)'>
+ <PgfNumString `1)\t'>
+ <ParaLine
+  <String `Incorrect wire tension.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239764>
+ <PgfTag `221 List n+)'>
+ <PgfNumString `2)\t'>
+ <ParaLine
+  <String `Incorrect machine alignment.'>
+ > # end of ParaLine
+> # end of Para
+
+<Para
+ <Unique 239770>
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This is a normal body paragraph after the lists.'>
+ > # end of ParaLine
+> # end of Para

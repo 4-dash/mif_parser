@@ -19,6 +19,42 @@
 > # end of Para
 
 <Para
+<Unique 239750>
+<PgfTag `050 Title5'>
+<PgfNumString `(1)\t'>
+<PgfReferenced Yes>
+<ParaLine
+<String `Problem'>
+>
+>
+
+<Para
+<Unique 239750>
+<PgfNumString `(1)\t'>
+<PgfReferenced Yes>
+<ParaLine
+<String `Problem'>
+>
+>
+
+<Para
+<Unique 239752>
+<PgfTag `220 List n=1)'>
+<PgfNumString `1)\t'>
+<ParaLine
+<String `The wire breaks the moment the operation starts.'>
+>
+>
+
+<Para
+<Unique 239752>
+<PgfNumString `1)\t'>
+<ParaLine
+<String `The wire breaks the moment the operation starts.'>
+>
+>
+
+<Para
  <Unique 100003>
  <PgfTag `030 Title4'>
  <PgfNumString `2.1.1.1\t'>

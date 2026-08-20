@@ -30,6 +30,10 @@ module MifParser
       interpret.body?
     end
 
+    def list?
+      interpret.list?
+    end
+
     def heading_level
       interpret.heading_level
     end

@@ -4,6 +4,8 @@ module MifParser
       :type,
       :text,
       :heading_level,
+      :list_level,
+      :list_marker,
       :rows,
       :source,
       keyword_init: true
@@ -14,6 +16,10 @@ module MifParser
 
       def body?
         type == :body
+      end
+
+      def list?
+        type == :list
       end
 
       def table?
@@ -33,10 +39,8 @@ module MifParser
       case element
       when Paragraph
         interpret_paragraph(element)
-
       when Table
         interpret_table(element)
-
       else
         Result.new(
           type: :unknown,
@@ -48,15 +52,9 @@ module MifParser
     private
 
     def interpret_paragraph(paragraph)
-      #
-      # First use an explicit heading-style tag.
-      #
-      # Examples:
-      #
-      # Title4
-      # 040 Title4
-      # Heading3
-      #
+      list_result = interpret_list(paragraph)
+      return list_result if list_result
+
       tag_level =
         heading_level_from_tag(paragraph.tag)
 
@@ -71,30 +69,15 @@ module MifParser
 
         return Result.new(
           type: :heading,
-
-          #
-          # Prefer the actual numbering depth when available.
-          #
-          # 4.3.4 => level 2
-          #
-          heading_level:
-            numeric_level || tag_level,
-
-          text:
-            heading_text(
-              number,
-              paragraph.raw_text
-            ),
-
+          heading_level: numeric_level || tag_level,
+          text: heading_text(
+            number,
+            paragraph.raw_text
+          ),
           source: paragraph
         )
       end
 
-      #
-      # Keep the old numbered-heading fallback,
-      # but don't turn obvious numbered-list styles
-      # into headings.
-      #
       if @numbered_headings &&
          !list_like_tag?(paragraph.tag)
 
@@ -106,9 +89,40 @@ module MifParser
 
       Result.new(
         type: :body,
-        text: paragraph.raw_text.strip,
+        text: paragraph.raw_text.to_s.strip,
         source: paragraph
       )
+    end
+
+    def interpret_list(paragraph)
+      number =
+        clean_number_string(
+          paragraph.number_string
+        )
+
+      return nil if number.empty?
+
+      if list_like_tag?(paragraph.tag)
+        return Result.new(
+          type: :list,
+          text: paragraph.raw_text.to_s.strip,
+          list_level: 1,
+          list_marker: number,
+          source: paragraph
+        )
+      end
+
+      if parenthesized_list_marker?(number)
+        return Result.new(
+          type: :list,
+          text: paragraph.raw_text.to_s.strip,
+          list_level: 0,
+          list_marker: number,
+          source: paragraph
+        )
+      end
+
+      nil
     end
 
     def interpret_table(table)
@@ -120,11 +134,8 @@ module MifParser
     end
 
     def interpret_numbered_heading(paragraph)
-      return nil if
-        paragraph.number_string.to_s.strip.empty?
-
-      return nil if
-        paragraph.raw_text.to_s.strip.empty?
+      return nil if paragraph.number_string.to_s.strip.empty?
+      return nil if paragraph.raw_text.to_s.strip.empty?
 
       number =
         clean_number_string(
@@ -139,35 +150,19 @@ module MifParser
       Result.new(
         type: :heading,
         heading_level: level,
-
-        text:
-          heading_text(
-            number,
-            paragraph.raw_text
-          ),
-
+        text: heading_text(
+          number,
+          paragraph.raw_text
+        ),
         source: paragraph
       )
     end
 
     def numbered_heading_level(number)
-      #
-      # Matches:
-      #
-      # 3)
-      # 3.
-      # 2.1
-      # 2.1.1
-      # 2.1.1.
-      #
-      # Does NOT match:
-      #
-      # Fig. 5.5.13
-      # Table 3
-      #
-      match = number.match(
-        /\A(\d+(?:\.\d+)*)(?:[.)])?\z/
-      )
+      match =
+        number.match(
+          /\A(\d+(?:\.\d+)*)(?:[.)])?\z/
+        )
 
       return nil unless match
 
@@ -183,17 +178,9 @@ module MifParser
     end
 
     def clean_number_string(value)
-      #
-      # Parser now converts MIF \t into a real tab,
-      # so normal strip is sufficient.
-      #
       value.to_s.strip
     end
 
-    #
-    # Prevent obvious numbered-list paragraph styles
-    # from being promoted to headings.
-    #
     def list_like_tag?(tag)
       value = tag.to_s.strip
 
@@ -204,27 +191,17 @@ module MifParser
       )
     end
 
+    def parenthesized_list_marker?(number)
+      number.match?(
+        /\A\(\d+(?:\.\d+)*\)\z/
+      )
+    end
+
     def heading_level_from_tag(tag)
       value = tag.to_s.strip
 
       case value
-
-      #
-      # Matches:
-      #
-      # Title4
-      # 040 Title4
-      # Heading3
-      # 030 Heading3
-      # Head_2
-      # H1
-      #
-      # But NOT:
-      #
-      # Subtitle4
-      #
       when /(?:\A|[\s_-])(?:heading|head|h|title)[\s_-]*(\d+)\z/i
-
         [
           Regexp.last_match(1).to_i - 1,
           0
@@ -232,7 +209,6 @@ module MifParser
 
       when /(?:\A|[\s_-])chapter[\s_-]*title\z/i,
            /\Atitle\z/i
-
         0
 
       else
