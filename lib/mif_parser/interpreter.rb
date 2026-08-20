@@ -170,11 +170,7 @@ module MifParser
     end
 
     def heading_text(number, raw_text)
-      text = raw_text.to_s.strip
-
-      return text if number.empty?
-
-      "#{number} #{text}"
+      raw_text.to_s.strip
     end
 
     def clean_number_string(value)
