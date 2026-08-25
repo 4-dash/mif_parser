@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MifParser
   class Element
     attr_reader :tag
@@ -32,6 +34,6 @@ module MifParser
       text.to_s.strip
     end
 
-    alias_method :clean_text, :import_text
+    alias clean_text import_text
   end
 end

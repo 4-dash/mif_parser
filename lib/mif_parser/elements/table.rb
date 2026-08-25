@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MifParser
   class Table < Element
     attr_reader :id, :rows

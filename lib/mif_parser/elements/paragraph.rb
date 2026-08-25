@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MifParser
   class Paragraph < Element
     attr_reader :number_string, :raw_text
