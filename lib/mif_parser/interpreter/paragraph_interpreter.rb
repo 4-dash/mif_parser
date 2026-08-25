@@ -26,7 +26,6 @@ module MifParser
             type: :heading,
             heading_level: numeric_level || tag_level,
             text: heading_text(
-              number,
               paragraph.raw_text
             ),
             source: paragraph
@@ -101,7 +100,6 @@ module MifParser
           type: :heading,
           heading_level: level,
           text: heading_text(
-            number,
             paragraph.raw_text
           ),
           source: paragraph
@@ -119,7 +117,7 @@ module MifParser
         match[1].split(".").length - 1
       end
 
-      def heading_text(number, raw_text)
+      def heading_text(raw_text)
         raw_text.to_s.strip
       end
 

@@ -1,0 +1,57 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `This paragraph has several sentences. '>
+  <String `They should remain one MIF paragraph. '>
+  <String `Fragment splitting happens later.'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `First part. '>
+ >
+ <ParaLine
+  <String `Second part. '>
+ >
+ <ParaLine
+  <String `Third part.'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Apostrophe: \'. Backtick: \`. Backslash: \\.'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Hello'>
+  <Char Tab>
+  <String `World'>
+  <Char HardReturn>
+  <Char Bullet>
+  <Char HardSpace>
+  <String `Item'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `   '>
+ >
+>

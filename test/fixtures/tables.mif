@@ -1,0 +1,56 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `Before table.'>
+  <ATbl 42>
+  <String `After table.'>
+ >
+>
+
+<Tbl
+ <TblID 42>
+ <TblTag `Basic Table'>
+
+ <Row
+  <Cell
+   <Para
+    <ParaLine
+     <String `A1'>
+    >
+   >
+   <Para
+    <ParaLine
+     <String `Second paragraph'>
+    >
+   >
+  >
+
+  <Cell
+   <Para
+    <ParaLine
+     <String `B1'>
+    >
+   >
+  >
+ >
+
+ <Row
+  <Cell
+   <Para
+    <ParaLine
+     <String `A2'>
+    >
+   >
+  >
+
+  <Cell
+   <Para
+    <ParaLine
+     <String `B2'>
+    >
+   >
+  >
+ >
+>

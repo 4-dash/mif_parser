@@ -1,0 +1,43 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: Heading1
+    raw_text: "1 Main Chapter"
+    type: heading
+    heading?: true
+    heading_level: 0
+    text: "1 Main Chapter"
+
+  - class: MifParser::Paragraph
+    tag: Heading1
+    raw_text: "1.1 Inherited Heading"
+    type: heading
+    heading?: true
+    heading_level: 0
+    text: "1.1 Inherited Heading"
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "This is normal body text."
+    type: body
+    body?: true
+    text: "This is normal body text."
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "This body paragraph inherits the Body tag."
+    type: body
+    body?: true
+
+  - class: MifParser::Paragraph
+    tag: Heading2
+    raw_text: "1.2 Another Heading"
+    type: heading
+    heading?: true
+    heading_level: 1
+
+  - class: MifParser::Paragraph
+    tag: Heading2
+    raw_text: "1.2.1 This inherits Heading2"
+    type: heading
+    heading?: true
+    heading_level: 1

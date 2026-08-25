@@ -1,0 +1,20 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "Before table."
+    type: body
+    text: "Before table."
+
+  - class: MifParser::Table
+    id: 42
+    tag: "Basic Table"
+    type: table
+    table?: true
+    rows:
+      - ["A1\nSecond paragraph", "B1"]
+      - ["A2", "B2"]
+
+  - class: MifParser::Paragraph
+    raw_text: "After table."
+    type: body
+    text: "After table."

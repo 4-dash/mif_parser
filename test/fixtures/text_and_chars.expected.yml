@@ -1,0 +1,23 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "This paragraph has several sentences. They should remain one MIF paragraph. Fragment splitting happens later."
+    type: body
+    text: "This paragraph has several sentences. They should remain one MIF paragraph. Fragment splitting happens later."
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "First part. Second part. Third part."
+    type: body
+    text: "First part. Second part. Third part."
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "Apostrophe: '. Backtick: `. Backslash: \\."
+    type: body
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "Hello\tWorld\n•\u00A0Item"
+    type: body
+    text: "Hello\tWorld\n•\u00A0Item"

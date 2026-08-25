@@ -1,0 +1,71 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: "040 Title4"
+    number_string: "4.3\t"
+    raw_text: "Wire Breakage Tests"
+    type: heading
+    heading?: true
+    heading_level: 1
+    text: "Wire Breakage Tests"
+
+  - class: MifParser::Paragraph
+    tag: "050 Title5"
+    number_string: "(1)\t"
+    raw_text: "Problem"
+    type: list
+    list?: true
+    heading?: false
+    list_level: 0
+    list_marker: "(1)"
+
+  - class: MifParser::Paragraph
+    tag: "220 List n=1)"
+    number_string: "1)\t"
+    type: list
+    list?: true
+    list_level: 1
+    list_marker: "1)"
+
+  - class: MifParser::Paragraph
+    tag: "221 List n+)"
+    number_string: "2)\t"
+    type: list
+    list?: true
+    list_level: 1
+    list_marker: "2)"
+
+  - class: MifParser::Paragraph
+    tag: Body
+    type: body
+    body?: true
+    text: "Normal body text."
+
+  - class: MifParser::Paragraph
+    tag: "Numbered List"
+    number_string: "1.\t"
+    type: list
+    list?: true
+    heading?: false
+    list_level: 1
+    list_marker: "1."
+
+  - class: MifParser::Paragraph
+    tag: CustomStyle
+    number_string: "2.3.4\t"
+    type: heading
+    heading?: true
+    heading_level: 2
+
+  - class: MifParser::Paragraph
+    tag: CustomStyle
+    raw_text: "2.3.4 Visible numbering only"
+    type: body
+    body?: true
+    heading?: false
+
+  - class: MifParser::Paragraph
+    tag: "600 Fig Title"
+    number_string: "Fig. 5.2.1  "
+    type: body
+    body?: true
+    heading?: false
