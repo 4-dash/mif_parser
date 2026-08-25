@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [0.2.1] - 25.08.2026
+
+- Added list support. Refactored code to be modular.
 
 ## [0.2.0] - 20.08.2026
 

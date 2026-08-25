@@ -1,0 +1,79 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `050 Title5'>
+ <PgfNumString `(1)\t'>
+ <ParaLine
+  <String `Problem'>
+ >
+>
+
+<Para
+ <PgfTag `220 List n=1)'>
+ <PgfNumString `1)\t'>
+ <ParaLine
+  <String `First numbered item'>
+ >
+>
+
+<Para
+ <PgfNumString `2)\t'>
+ <ParaLine
+  <String `Inherited numbered item'>
+ >
+>
+
+<Para
+ <PgfTag `Numbered List'>
+ <PgfNumString `1.\t'>
+ <ParaLine
+  <String `Standard numbered list item'>
+ >
+>
+
+<Para
+ <PgfTag `Ordered List'>
+ <PgfNumString `A)\t'>
+ <ParaLine
+  <String `Alphabetic ordered item'>
+ >
+>
+
+<Para
+ <PgfTag `Bullet'>
+ <PgfNumString `•\t'>
+ <ParaLine
+  <String `Bullet item'>
+ >
+>
+
+<Para
+ <PgfTag `Unordered List'>
+ <PgfNumString `*\t'>
+ <ParaLine
+  <String `Unordered item with custom marker'>
+ >
+>
+
+<Para
+ <PgfTag `UL'>
+ <PgfNumString `◦\t'>
+ <ParaLine
+  <String `Short UL style item'>
+ >
+>
+
+<Para
+ <PgfTag `CustomStyle'>
+ <PgfNumString `▪\t'>
+ <ParaLine
+  <String `Bullet marker without list style'>
+ >
+>
+
+<Para
+ <PgfTag `Bullet'>
+ <ParaLine
+  <String `Bullet style without number string'>
+ >
+>

@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require_relative "paragraph_parser"
+require_relative "list_parser"
 require_relative "table_parser"
 
 module MifParser
   class Parser
     include ParagraphParser
+    include ListParser
     include TableParser
 
     TableAnchor = Struct.new(:id)
@@ -94,10 +96,6 @@ module MifParser
 
     private
 
-    #
-    # Input
-    #
-
     def each_line(&block)
       if @input.respond_to?(:each_line)
         @input.each_line(&block)
@@ -109,10 +107,6 @@ module MifParser
     def comment?(line)
       line.start_with?("#")
     end
-
-    #
-    # Lightweight block tracking
-    #
 
     def update_block_stack(line)
       return @block_stack.pop if line.start_with?(">")
@@ -133,10 +127,6 @@ module MifParser
         closed_block.casecmp?(name)
     end
 
-    #
-    # Shared String + Char parsing
-    #
-
     def parse_text_tokens(line, container)
       line.scan(TEXT_TOKEN_RE) do |string_value, char_name|
         if string_value
@@ -150,10 +140,6 @@ module MifParser
         end
       end
     end
-
-    #
-    # MIF string escapes
-    #
 
     def decode_string(value)
       value.to_s.gsub(/\\(.)/m) do

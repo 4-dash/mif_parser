@@ -181,6 +181,206 @@ class ParserTest < Minitest::Test
     )
   end
 
+  def test_parses_numbered_list_as_ordered_list
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Numbered List'>
+        <PgfNumString `1.\t'>
+        <ParaLine
+          <String `First list item'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 1, document.size
+
+    list = document.elements.first
+
+    assert_instance_of MifParser::List, list
+
+    assert_equal "Numbered List", list.tag
+    assert_equal "1.\t", list.number_string
+    assert_equal "First list item", list.raw_text
+
+    assert_equal :ol, list.list_type
+    assert_equal 1, list.list_level
+    assert_equal "1.", list.list_marker
+  end
+
+  def test_parses_parenthesized_number_as_ordered_list
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `050 Title5'>
+        <PgfNumString `(1)\t'>
+        <ParaLine
+          <String `Problem'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    list = document.elements.first
+
+    assert_instance_of MifParser::List, list
+
+    assert_equal :ol, list.list_type
+    assert_equal 0, list.list_level
+    assert_equal "(1)", list.list_marker
+    assert_equal "Problem", list.raw_text
+  end
+
+  def test_parses_bullet_list_as_unordered_list
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Bullet'>
+        <PgfNumString `•\t'>
+        <ParaLine
+          <String `Bullet item'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    list = document.elements.first
+
+    assert_instance_of MifParser::List, list
+
+    assert_equal :ul, list.list_type
+    assert_equal 1, list.list_level
+    assert_equal "•", list.list_marker
+    assert_equal "Bullet item", list.raw_text
+  end
+
+  def test_parses_alphabetic_ordered_list
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Ordered List'>
+        <PgfNumString `A)\t'>
+        <ParaLine
+          <String `Alphabetic item'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    list = document.elements.first
+
+    assert_instance_of MifParser::List, list
+
+    assert_equal :ol, list.list_type
+    assert_equal "A)", list.list_marker
+  end
+
+  def test_list_tag_is_inherited
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `220 List n=1)'>
+        <PgfNumString `1)\t'>
+        <ParaLine
+          <String `First item'>
+        >
+      >
+
+      <Para
+        <PgfNumString `2)\t'>
+        <ParaLine
+          <String `Second item'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 2, document.size
+
+    first = document.elements[0]
+    second = document.elements[1]
+
+    assert_instance_of MifParser::List, first
+    assert_instance_of MifParser::List, second
+
+    assert_equal "220 List n=1)", first.tag
+    assert_equal "220 List n=1)", second.tag
+
+    assert_equal "1)", first.list_marker
+    assert_equal "2)", second.list_marker
+  end
+
+  def test_bullet_style_without_number_string_remains_paragraph
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Bullet'>
+        <ParaLine
+          <String `No number string'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    element = document.elements.first
+
+    assert_instance_of MifParser::Paragraph, element
+    refute_instance_of MifParser::List, element
+
+    assert_equal "Bullet", element.tag
+    assert_equal "No number string", element.raw_text
+  end
+
+  def test_document_separates_paragraphs_and_lists
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `Normal paragraph'>
+        >
+      >
+
+      <Para
+        <PgfTag `Numbered List'>
+        <PgfNumString `1.\t'>
+        <ParaLine
+          <String `List item'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 2, document.size
+    assert_equal 1, document.paragraphs.size
+    assert_equal 1, document.lists.size
+
+    assert_instance_of(
+      MifParser::Paragraph,
+      document.paragraphs.first
+    )
+
+    assert_instance_of(
+      MifParser::List,
+      document.lists.first
+    )
+  end
+
   def test_table_anchor_is_resolved_at_original_position
     mif = <<~'MIF'
       <MIFFile 7.00>

@@ -41,31 +41,43 @@ module MifParser
         # PgfNumString
         #
 
-        number_string = parse_number_string(line)
+        number_string =
+          parse_number_string(line)
 
-        @current_para[:number_string] = number_string unless number_string.nil?
+        unless number_string.nil?
+          @current_para[:number_string] =
+            number_string
+        end
 
         #
         # Table insertion point
         #
 
-        table_id = parse_table_anchor(line)
+        table_id =
+          parse_table_anchor(line)
 
         unless table_id.nil?
-          flush_paragraph_text_part(@current_para)
-
-          @current_para[:parts] << TableAnchor.new(
-            table_id
+          flush_paragraph_text_part(
+            @current_para
           )
+
+          @current_para[:parts] <<
+            TableAnchor.new(table_id)
         end
 
         #
         # String + Char contents
         #
 
-        parse_text_tokens(line, @current_para)
+        parse_text_tokens(
+          line,
+          @current_para
+        )
 
-        return unless block_closed?(closed_block, "Para")
+        return unless block_closed?(
+          closed_block,
+          "Para"
+        )
 
         append_paragraph_elements(
           @elements,
@@ -95,10 +107,6 @@ module MifParser
         decode_string(match[1])
       end
 
-      #
-      # Flush text before an anchored table.
-      #
-
       def flush_paragraph_text_part(data)
         return if data[:strings].empty?
 
@@ -108,20 +116,6 @@ module MifParser
 
         data[:strings].clear
       end
-
-      #
-      # The existing model only has Paragraph and Table.
-      #
-      # String A
-      # ATbl
-      # String B
-      #
-      # becomes:
-      #
-      # Paragraph A
-      # Table
-      # Paragraph B
-      #
 
       def append_paragraph_elements(elements, data)
         return unless data
@@ -136,14 +130,20 @@ module MifParser
             next
           end
 
-          paragraph = Paragraph.new(
-            tag: first_text_part ? data[:tag] : nil,
-            number_string:
-              first_text_part ? data[:number_string] : nil,
-            text: part
-          )
+          element =
+            build_paragraph_element(
+              tag:
+                first_text_part ? data[:tag] : nil,
+              number_string:
+                if first_text_part
+                  data[:number_string]
+                else
+                  nil
+                end,
+              text: part
+            )
 
-          elements << paragraph unless paragraph.raw_text.strip.empty?
+          elements << element unless element.raw_text.strip.empty?
 
           first_text_part = false
         end

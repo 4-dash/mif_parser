@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require_relative "paragraph_interpreter"
+require_relative "list_interpreter"
 require_relative "table_interpreter"
 
 module MifParser
   class Interpreter
     include ParagraphInterpreter
+    include ListInterpreter
     include TableInterpreter
 
     Result = Struct.new(
@@ -14,6 +16,7 @@ module MifParser
       :heading_level,
       :list_level,
       :list_marker,
+      :list_type,
       :rows,
       :source,
       keyword_init: true
@@ -45,6 +48,9 @@ module MifParser
 
     def interpret(element)
       case element
+      when List
+        interpret_list(element)
+
       when Paragraph
         interpret_paragraph(element)
 

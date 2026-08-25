@@ -18,6 +18,10 @@ module MifParser
       elements_of(Paragraph)
     end
 
+    def lists
+      elements_of(List)
+    end
+
     def tables
       elements_of(Table)
     end

@@ -1,0 +1,82 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `040 Title4'>
+ <PgfNumString `4.3\t'>
+ <ParaLine
+  <String `Wire Breakage Tests'>
+ >
+>
+
+<Para
+ <PgfTag `030 Title3'>
+ <PgfNumString `2.1.1\t'>
+ <ParaLine
+  <String `Wire Electrode Selection'>
+ >
+>
+
+<Para
+ <PgfTag `Heading1'>
+ <ParaLine
+  <String `Main Chapter'>
+ >
+>
+
+<Para
+ <PgfTag `CustomStyle'>
+ <PgfNumString `3.1.\t'>
+ <ParaLine
+  <String `Trailing Period Heading'>
+ >
+>
+
+<Para
+ <PgfTag `CustomStyle'>
+ <ParaLine
+  <String `2.3.4 Visible numbering only'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `4.2 This remains body text'>
+ >
+>
+
+<Para
+ <PgfTag `600 Fig Title'>
+ <PgfNumString `Fig. 5.2.1  '>
+ <ParaLine
+  <String `Wire Feed System'>
+ >
+>
+
+<Para
+ <PgfTag `Title'>
+ <ParaLine
+  <String `Document Title'>
+ >
+>
+
+<Para
+ <PgfTag `ChapterTitle'>
+ <ParaLine
+  <String `Another Chapter'>
+ >
+>
+
+<Para
+ <PgfTag `H2'>
+ <ParaLine
+  <String `Short H2 Heading'>
+ >
+>
+
+<Para
+ <PgfTag `Head3'>
+ <ParaLine
+  <String `Head3 Style Heading'>
+ >
+>

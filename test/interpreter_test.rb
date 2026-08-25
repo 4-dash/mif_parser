@@ -64,56 +64,72 @@ class InterpreterTest < Minitest::Test
     result = paragraph.interpret
 
     assert result.heading?
-
-    # Existing behavior:
-    # 4.3 -> two numeric components -> level 1
     assert_equal 1, result.heading_level
   end
 
-  def test_parenthesized_number_is_list
-    paragraph = MifParser::Paragraph.new(
-      tag: "050 Title5",
-      number_string: "(1)\t",
-      text: "Problem"
+  def test_ordered_list_interpretation
+    list = MifParser::List.new(
+      tag: "220 List n=1)",
+      number_string: "1)\t",
+      text: "First item",
+      list_type: :ol,
+      list_level: 1,
+      list_marker: "1)"
     )
 
-    result = paragraph.interpret
+    result = list.interpret
 
     assert result.list?
     refute result.heading?
 
+    assert_equal :list, result.type
+    assert_equal :ol, result.list_type
+    assert_equal 1, result.list_level
+    assert_equal "1)", result.list_marker
+    assert_equal "First item", result.text
+  end
+
+  def test_unordered_list_interpretation
+    list = MifParser::List.new(
+      tag: "Bullet",
+      number_string: "•\t",
+      text: "Bullet item",
+      list_type: :ul,
+      list_level: 1,
+      list_marker: "•"
+    )
+
+    result = list.interpret
+
+    assert result.list?
+    refute result.heading?
+
+    assert_equal :list, result.type
+    assert_equal :ul, result.list_type
+    assert_equal 1, result.list_level
+    assert_equal "•", result.list_marker
+    assert_equal "Bullet item", result.text
+  end
+
+  def test_parenthesized_list_interpretation
+    list = MifParser::List.new(
+      tag: "050 Title5",
+      number_string: "(1)\t",
+      text: "Problem",
+      list_type: :ol,
+      list_level: 0,
+      list_marker: "(1)"
+    )
+
+    result = list.interpret
+
+    assert result.list?
+    refute result.heading?
+
+    assert_equal :ol, result.list_type
     assert_equal 0, result.list_level
     assert_equal "(1)", result.list_marker
     assert_equal "Problem", result.text
-  end
-
-  def test_list_style_is_list
-    paragraph = MifParser::Paragraph.new(
-      tag: "220 List n=1)",
-      number_string: "1)\t",
-      text: "First item"
-    )
-
-    result = paragraph.interpret
-
-    assert result.list?
-    assert_equal 1, result.list_level
-    assert_equal "1)", result.list_marker
-  end
-
-  def test_numbered_list_is_not_heading
-    paragraph = MifParser::Paragraph.new(
-      tag: "Numbered List",
-      number_string: "1.\t",
-      text: "List item"
-    )
-
-    result = paragraph.interpret
-
-    assert result.list?
-    refute result.heading?
-
-    assert_equal "1.", result.list_marker
   end
 
   def test_body_is_body

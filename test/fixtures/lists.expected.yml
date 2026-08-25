@@ -1,0 +1,109 @@
+elements:
+  - class: MifParser::List
+    tag: "050 Title5"
+    number_string: "(1)\t"
+    raw_text: "Problem"
+    type: list
+    list?: true
+    heading?: false
+    list_type: ol
+    list_level: 0
+    list_marker: "(1)"
+    text: "Problem"
+
+  - class: MifParser::List
+    tag: "220 List n=1)"
+    number_string: "1)\t"
+    raw_text: "First numbered item"
+    type: list
+    list?: true
+    list_type: ol
+    list_level: 1
+    list_marker: "1)"
+    text: "First numbered item"
+
+  - class: MifParser::List
+    tag: "220 List n=1)"
+    number_string: "2)\t"
+    raw_text: "Inherited numbered item"
+    type: list
+    list?: true
+    list_type: ol
+    list_level: 1
+    list_marker: "2)"
+    text: "Inherited numbered item"
+
+  - class: MifParser::List
+    tag: "Numbered List"
+    number_string: "1.\t"
+    raw_text: "Standard numbered list item"
+    type: list
+    list?: true
+    heading?: false
+    list_type: ol
+    list_level: 1
+    list_marker: "1."
+    text: "Standard numbered list item"
+
+  - class: MifParser::List
+    tag: "Ordered List"
+    number_string: "A)\t"
+    raw_text: "Alphabetic ordered item"
+    type: list
+    list?: true
+    list_type: ol
+    list_level: 1
+    list_marker: "A)"
+    text: "Alphabetic ordered item"
+
+  - class: MifParser::List
+    tag: Bullet
+    number_string: "•\t"
+    raw_text: "Bullet item"
+    type: list
+    list?: true
+    list_type: ul
+    list_level: 1
+    list_marker: "•"
+    text: "Bullet item"
+
+  - class: MifParser::List
+    tag: "Unordered List"
+    number_string: "*\t"
+    raw_text: "Unordered item with custom marker"
+    type: list
+    list?: true
+    list_type: ul
+    list_level: 1
+    list_marker: "*"
+    text: "Unordered item with custom marker"
+
+  - class: MifParser::List
+    tag: UL
+    number_string: "◦\t"
+    raw_text: "Short UL style item"
+    type: list
+    list?: true
+    list_type: ul
+    list_level: 1
+    list_marker: "◦"
+    text: "Short UL style item"
+
+  - class: MifParser::List
+    tag: CustomStyle
+    number_string: "▪\t"
+    raw_text: "Bullet marker without list style"
+    type: list
+    list?: true
+    list_type: ul
+    list_level: 1
+    list_marker: "▪"
+    text: "Bullet marker without list style"
+
+  - class: MifParser::Paragraph
+    tag: Bullet
+    raw_text: "Bullet style without number string"
+    type: body
+    body?: true
+    list?: false
+    text: "Bullet style without number string"

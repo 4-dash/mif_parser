@@ -14,6 +14,7 @@ module MifParser
       heading_level
       list_level
       list_marker
+      list_type
     ].freeze
 
     def initialize(tag: nil)
