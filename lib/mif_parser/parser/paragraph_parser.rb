@@ -6,7 +6,9 @@ module MifParser
       private
 
       def paragraph_start?(line)
-        line.match?(/\A<Para(?:\s|>|$)/)
+        line.match?(
+          /\A<Para(?:\s|>|$)/
+        )
       end
 
       def start_paragraph
@@ -25,12 +27,15 @@ module MifParser
         }
       end
 
-      def parse_paragraph_line(line, closed_block)
+      def parse_paragraph_line(
+        line,
+        closed_block
+      )
         #
         # PgfTag
         #
-
-        tag = parse_paragraph_tag(line)
+        tag =
+          parse_paragraph_tag(line)
 
         unless tag.nil?
           @current_tag = tag
@@ -40,19 +45,18 @@ module MifParser
         #
         # PgfNumString
         #
-
         number_string =
           parse_number_string(line)
 
         unless number_string.nil?
-          @current_para[:number_string] =
-            number_string
+          @current_para[
+            :number_string
+          ] = number_string
         end
 
         #
         # Table insertion point
         #
-
         table_id =
           parse_table_anchor(line)
 
@@ -62,22 +66,24 @@ module MifParser
           )
 
           @current_para[:parts] <<
-            TableAnchor.new(table_id)
+            TableAnchor.new(
+              table_id
+            )
         end
 
         #
         # String + Char contents
         #
-
         parse_text_tokens(
           line,
           @current_para
         )
 
-        return unless block_closed?(
-          closed_block,
-          "Para"
-        )
+        return unless
+          block_closed?(
+            closed_block,
+            "Para"
+          )
 
         append_paragraph_elements(
           @elements,
@@ -88,39 +94,53 @@ module MifParser
       end
 
       def parse_paragraph_tag(line)
-        match = line.match(
-          /<PgfTag\s+`((?:\\.|[^'])*)'>/
-        )
+        match =
+          line.match(
+            /<PgfTag\s+`((?:\\.|[^'])*)'>/
+          )
 
         return nil unless match
 
-        decode_string(match[1])
+        decode_string(
+          match[1]
+        )
       end
 
       def parse_number_string(line)
-        match = line.match(
-          /<PgfNumString\s+`((?:\\.|[^'])*)'>/
-        )
+        match =
+          line.match(
+            /<PgfNumString\s+`((?:\\.|[^'])*)'>/
+          )
 
         return nil unless match
 
-        decode_string(match[1])
+        decode_string(
+          match[1]
+        )
       end
 
       def flush_paragraph_text_part(data)
-        return if data[:strings].empty?
+        return if
+          data[:strings].empty?
 
-        text = data[:strings].join
+        text =
+          data[:strings].join
 
-        data[:parts] << text unless text.empty?
+        data[:parts] << text unless
+          text.empty?
 
         data[:strings].clear
       end
 
-      def append_paragraph_elements(elements, data)
+      def append_paragraph_elements(
+        elements,
+        data
+      )
         return unless data
 
-        flush_paragraph_text_part(data)
+        flush_paragraph_text_part(
+          data
+        )
 
         first_text_part = true
 
@@ -133,17 +153,18 @@ module MifParser
           element =
             build_paragraph_element(
               tag:
-                first_text_part ? data[:tag] : nil,
+                (data[:tag] if first_text_part),
               number_string:
-                if first_text_part
-                  data[:number_string]
-                else
-                  nil
-                end,
-              text: part
+                (data[:number_string] if first_text_part),
+              text: part,
+              previous_element:
+                elements.last
             )
 
-          elements << element unless element.raw_text.strip.empty?
+          elements << element unless
+            element.raw_text
+                   .strip
+                   .empty?
 
           first_text_part = false
         end

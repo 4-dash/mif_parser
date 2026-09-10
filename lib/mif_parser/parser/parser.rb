@@ -52,26 +52,29 @@ module MifParser
         next if line.empty?
         next if comment?(line)
 
-        closed_block = update_block_stack(line)
+        closed_block =
+          update_block_stack(line)
 
         #
         # Table definition
         #
-
         if table_start?(line)
           start_table
           next
         end
 
         if @current_table
-          parse_table_line(line, closed_block)
+          parse_table_line(
+            line,
+            closed_block
+          )
+
           next
         end
 
         #
         # Normal document paragraphs
         #
-
         if paragraph_start?(line)
           start_paragraph
           next
@@ -79,7 +82,10 @@ module MifParser
 
         next unless @current_para
 
-        parse_paragraph_line(line, closed_block)
+        parse_paragraph_line(
+          line,
+          closed_block
+        )
       end
 
       if @current_para
@@ -89,18 +95,35 @@ module MifParser
         )
       end
 
+      resolved_elements =
+        resolve_table_anchors(
+          @elements,
+          @tables
+        )
+
+      #
+      # Resolve cases that require neighboring
+      # paragraph context only after the entire
+      # document structure has been parsed.
+      #
       Document.new(
-        resolve_table_anchors(@elements, @tables)
+        classify_ambiguous_lists(
+          resolved_elements
+        )
       )
     end
 
     private
 
     def each_line(&block)
-      if @input.respond_to?(:each_line)
+      if @input.respond_to?(
+        :each_line
+      )
         @input.each_line(&block)
       else
-        @input.to_s.each_line(&block)
+        @input
+          .to_s
+          .each_line(&block)
       end
     end
 
@@ -109,41 +132,64 @@ module MifParser
     end
 
     def update_block_stack(line)
-      return @block_stack.pop if line.start_with?(">")
+      return @block_stack.pop if
+        line.start_with?(">")
 
-      match = line.match(
-        /\A<([A-Za-z][A-Za-z0-9]*)\b/
-      )
+      match =
+        line.match(
+          /\A<([A-Za-z][A-Za-z0-9]*)\b/
+        )
 
       return nil unless match
 
-      @block_stack << match[1] unless line.match?(/>\s*(?:#.*)?\z/)
+      unless line.match?(
+        />\s*(?:#.*)?\z/
+      )
+        @block_stack << match[1]
+      end
 
       nil
     end
 
-    def block_closed?(closed_block, name)
+    def block_closed?(
+      closed_block,
+      name
+    )
       !closed_block.nil? &&
         closed_block.casecmp?(name)
     end
 
-    def parse_text_tokens(line, container)
-      line.scan(TEXT_TOKEN_RE) do |string_value, char_name|
+    def parse_text_tokens(
+      line,
+      container
+    )
+      line.scan(
+        TEXT_TOKEN_RE
+      ) do |string_value, char_name|
         if string_value
           container[:strings] <<
-            decode_string(string_value)
+            decode_string(
+              string_value
+            )
 
         elsif char_name
-          value = CHAR_MAP[char_name]
+          value =
+            CHAR_MAP[char_name]
 
-          container[:strings] << value if value
+          if value
+            container[:strings] <<
+              value
+          end
         end
       end
     end
 
     def decode_string(value)
-      value.to_s.gsub(/\\(.)/m) do
-        escaped = Regexp.last_match(1)
+      value.to_s.gsub(
+        /\\(.)/m
+      ) do
+        escaped =
+          Regexp.last_match(1)
 
         case escaped
         when "t"

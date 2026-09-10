@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../classification"
+
 module MifParser
   class Interpreter
     module ParagraphInterpreter
@@ -11,24 +13,23 @@ module MifParser
             paragraph.tag
           )
 
+        #
+        # Explicit heading style wins.
+        #
+        # Number syntax must not change
+        # Heading2 into Heading1, etc.
+        #
         if tag_level
-          number =
-            clean_number_string(
-              paragraph.number_string
-            )
-
-          numeric_level =
-            numbered_heading_level(number)
-
           return Result.new(
             type: :heading,
             heading_level:
-              numeric_level || tag_level,
+              tag_level,
             text:
               heading_text(
                 paragraph.raw_text
               ),
-            source: paragraph
+            source:
+              paragraph
           )
         end
 
@@ -44,23 +45,30 @@ module MifParser
         Result.new(
           type: :body,
           text:
-            paragraph.raw_text.to_s.strip,
-          source: paragraph
+            paragraph.raw_text
+                     .to_s
+                     .strip,
+          source:
+            paragraph
         )
       end
 
-      def interpret_numbered_heading(paragraph)
+      def interpret_numbered_heading(
+        paragraph
+      )
         return nil if
-          paragraph.number_string
-                   .to_s
-                   .strip
-                   .empty?
+          paragraph
+          .number_string
+          .to_s
+          .strip
+          .empty?
 
         return nil if
-          paragraph.raw_text
-                   .to_s
-                   .strip
-                   .empty?
+          paragraph
+          .raw_text
+          .to_s
+          .strip
+          .empty?
 
         number =
           clean_number_string(
@@ -68,7 +76,9 @@ module MifParser
           )
 
         level =
-          numbered_heading_level(number)
+          numbered_heading_level(
+            number
+          )
 
         return nil if level.nil?
 
@@ -79,19 +89,44 @@ module MifParser
             heading_text(
               paragraph.raw_text
             ),
-          source: paragraph
+          source:
+            paragraph
         )
       end
 
+      #
+      # Only hierarchical numeric markers
+      # are inferred as headings without an
+      # explicit heading style.
+      #
+      # Accepted:
+      #
+      #   1.1
+      #   1.2
+      #   1.2.
+      #   1.2.3
+      #
+      # Not accepted as headings:
+      #
+      #   1
+      #   1.
+      #   1)
+      #   (1)
+      #
+      # This prevents list numbering from
+      # being consumed by heading detection.
+      #
       def numbered_heading_level(number)
         match =
           number.match(
-            /\A(\d+(?:\.\d+)*)(?:[.)])?\z/
+            /\A(\d+(?:\.\d+)+)\.?\z/
           )
 
         return nil unless match
 
-        match[1].split(".").length - 1
+        match[1]
+          .split(".")
+          .length - 1
       end
 
       def heading_text(raw_text)
@@ -103,22 +138,10 @@ module MifParser
       end
 
       def heading_level_from_tag(tag)
-        value = tag.to_s.strip
-
-        case value
-        when /(?:\A|[\s_-])(?:heading|head|h|title)[\s_-]*(\d+)\z/i
-          [
-            Regexp.last_match(1).to_i - 1,
-            0
-          ].max
-
-        when /(?:\A|[\s_-])chapter[\s_-]*title\z/i,
-             /\Atitle\z/i
-          0
-
-        else
-          nil
-        end
+        Classification
+          .heading_level_from_tag(
+            tag
+          )
       end
     end
   end
