@@ -1,170 +1,110 @@
 # frozen_string_literal: true
 
+require_relative "../syntax/string_decoder"
+require_relative "../syntax/text_tokens"
+require_relative "../classification/classification"
+require_relative "parsed_paragraph"
+require_relative "table_anchor"
+
 module MifParser
   class Parser
-    module ParagraphParser
+    # Reads <Para> blocks: PgfTag, PgfNumString, text, <ATbl> anchors.
+    class ParagraphParser
+      def initialize(context)
+        @context = context
+      end
+
+      def start?(line)
+        line.match?(/\A<Para(?:\s|>|$)/)
+      end
+
+      def start
+        if @context.current_para
+          append_paragraph_elements(@context.current_para)
+        end
+
+        @context.current_para = ParsedParagraph.new(
+          tag: @context.current_tag
+        )
+      end
+
+      def parse_line(line, closed_block)
+        data = @context.current_para
+
+        tag = parse_paragraph_tag(line)
+        unless tag.nil?
+          @context.current_tag = tag
+          data.tag = tag
+        end
+
+        number_string = parse_number_string(line)
+        unless number_string.nil?
+          data.number_string = number_string
+        end
+
+        table_id = TableAnchor.parse(line)
+        unless table_id.nil?
+          flush_paragraph_text_part(data)
+          data.parts << table_id
+        end
+
+        Syntax::TextTokens.append(line, data.strings)
+
+        return unless @context.block_tracker.closed?(closed_block, "Para")
+
+        append_paragraph_elements(data)
+        @context.current_para = nil
+      end
+
+      def flush
+        append_paragraph_elements(@context.current_para)
+      end
+
       private
 
-      def paragraph_start?(line)
-        line.match?(
-          /\A<Para(?:\s|>|$)/
-        )
-      end
-
-      def start_paragraph
-        if @current_para
-          append_paragraph_elements(
-            @elements,
-            @current_para
-          )
-        end
-
-        @current_para = {
-          tag: @current_tag,
-          number_string: nil,
-          strings: [],
-          parts: []
-        }
-      end
-
-      def parse_paragraph_line(
-        line,
-        closed_block
-      )
-        #
-        # PgfTag
-        #
-        tag =
-          parse_paragraph_tag(line)
-
-        unless tag.nil?
-          @current_tag = tag
-          @current_para[:tag] = tag
-        end
-
-        #
-        # PgfNumString
-        #
-        number_string =
-          parse_number_string(line)
-
-        unless number_string.nil?
-          @current_para[
-            :number_string
-          ] = number_string
-        end
-
-        #
-        # Table insertion point
-        #
-        table_id =
-          parse_table_anchor(line)
-
-        unless table_id.nil?
-          flush_paragraph_text_part(
-            @current_para
-          )
-
-          @current_para[:parts] <<
-            TableAnchor.new(
-              table_id
-            )
-        end
-
-        #
-        # String + Char contents
-        #
-        parse_text_tokens(
-          line,
-          @current_para
-        )
-
-        return unless
-          block_closed?(
-            closed_block,
-            "Para"
-          )
-
-        append_paragraph_elements(
-          @elements,
-          @current_para
-        )
-
-        @current_para = nil
-      end
-
       def parse_paragraph_tag(line)
-        match =
-          line.match(
-            /<PgfTag\s+`((?:\\.|[^'])*)'>/
-          )
-
+        match = line.match(/<PgfTag\s+`((?:\\.|[^'])*)'>/)
         return nil unless match
 
-        decode_string(
-          match[1]
-        )
+        Syntax::StringDecoder.decode(match[1])
       end
 
       def parse_number_string(line)
-        match =
-          line.match(
-            /<PgfNumString\s+`((?:\\.|[^'])*)'>/
-          )
-
+        match = line.match(/<PgfNumString\s+`((?:\\.|[^'])*)'>/)
         return nil unless match
 
-        decode_string(
-          match[1]
-        )
+        Syntax::StringDecoder.decode(match[1])
       end
 
       def flush_paragraph_text_part(data)
-        return if
-          data[:strings].empty?
+        return if data.strings.empty?
 
-        text =
-          data[:strings].join
-
-        data[:parts] << text unless
-          text.empty?
-
-        data[:strings].clear
+        text = data.strings.join
+        data.parts << text unless text.empty?
+        data.strings.clear
       end
 
-      def append_paragraph_elements(
-        elements,
-        data
-      )
+      def append_paragraph_elements(data)
         return unless data
 
-        flush_paragraph_text_part(
-          data
-        )
+        flush_paragraph_text_part(data)
 
         first_text_part = true
 
-        data[:parts].each do |part|
+        data.parts.each do |part|
           if part.is_a?(TableAnchor)
-            elements << part
+            @context.elements << part
             next
           end
 
-          element =
-            build_paragraph_element(
-              tag:
-                (data[:tag] if first_text_part),
-              number_string:
-                (data[:number_string] if first_text_part),
-              text: part,
-              previous_element:
-                elements.last
-            )
+          element = Classification::ListItem.build(
+            tag: (data.tag if first_text_part),
+            number_string: (data.number_string if first_text_part),
+            text: part,
+            previous_element: @context.elements.last
+          )
 
-          elements << element unless
-            element.raw_text
-                   .strip
-                   .empty?
+          @context.elements << element unless element.raw_text.strip.empty?
 
           first_text_part = false
         end

@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
-require_relative "../classification"
+require_relative "../classification/classification"
+require_relative "result"
 
 module MifParser
   class Interpreter
-    module ParagraphInterpreter
-      private
+    # Decides whether a Paragraph is a heading or body text.
+    class ParagraphInterpreter
+      def initialize(numbered_headings:)
+        @numbered_headings = numbered_headings
+      end
 
-      def interpret_paragraph(paragraph)
-        tag_level =
-          heading_level_from_tag(
-            paragraph.tag
-          )
+      def interpret(paragraph)
+        tag_level = heading_level_from_tag(paragraph.tag)
 
         #
         # Explicit heading style wins.
@@ -22,75 +23,39 @@ module MifParser
         if tag_level
           return Result.new(
             type: :heading,
-            heading_level:
-              tag_level,
-            text:
-              heading_text(
-                paragraph.raw_text
-              ),
-            source:
-              paragraph
+            heading_level: tag_level,
+            text: heading_text(paragraph.raw_text),
+            source: paragraph
           )
         end
 
         if @numbered_headings
-          result =
-            interpret_numbered_heading(
-              paragraph
-            )
-
+          result = interpret_numbered_heading(paragraph)
           return result if result
         end
 
         Result.new(
           type: :body,
-          text:
-            paragraph.raw_text
-                     .to_s
-                     .strip,
-          source:
-            paragraph
+          text: paragraph.raw_text.to_s.strip,
+          source: paragraph
         )
       end
 
-      def interpret_numbered_heading(
-        paragraph
-      )
-        return nil if
-          paragraph
-          .number_string
-          .to_s
-          .strip
-          .empty?
+      private
 
-        return nil if
-          paragraph
-          .raw_text
-          .to_s
-          .strip
-          .empty?
+      def interpret_numbered_heading(paragraph)
+        return nil if paragraph.number_string.to_s.strip.empty?
+        return nil if paragraph.raw_text.to_s.strip.empty?
 
-        number =
-          clean_number_string(
-            paragraph.number_string
-          )
-
-        level =
-          numbered_heading_level(
-            number
-          )
-
+        number = clean_number_string(paragraph.number_string)
+        level = numbered_heading_level(number)
         return nil if level.nil?
 
         Result.new(
           type: :heading,
           heading_level: level,
-          text:
-            heading_text(
-              paragraph.raw_text
-            ),
-          source:
-            paragraph
+          text: heading_text(paragraph.raw_text),
+          source: paragraph
         )
       end
 
@@ -117,16 +82,10 @@ module MifParser
       # being consumed by heading detection.
       #
       def numbered_heading_level(number)
-        match =
-          number.match(
-            /\A(\d+(?:\.\d+)+)\.?\z/
-          )
-
+        match = number.match(/\A(\d+(?:\.\d+)+)\.?\z/)
         return nil unless match
 
-        match[1]
-          .split(".")
-          .length - 1
+        match[1].split(".").length - 1
       end
 
       def heading_text(raw_text)
@@ -138,10 +97,7 @@ module MifParser
       end
 
       def heading_level_from_tag(tag)
-        Classification
-          .heading_level_from_tag(
-            tag
-          )
+        Classification.heading_level_from_tag(tag)
       end
     end
   end

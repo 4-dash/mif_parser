@@ -1,188 +1,90 @@
 # frozen_string_literal: true
 
+require_relative "../syntax/string_decoder"
+require_relative "../syntax/text_tokens"
+require_relative "../elements/table"
+require_relative "parsed_table"
+require_relative "table_anchor"
+
 module MifParser
   class Parser
-    module TableParser
-      private
+    # Reads <Tbl> definitions and later replaces <ATbl> anchors with tables.
+    class TableParser
+      def initialize(context)
+        @context = context
+      end
 
-      def table_start?(line)
+      def start?(line)
         line.match?(/\A<Tbl(?:\s|>|$)/)
       end
 
-      def start_table
-        @current_table = {
-          id: nil,
-          tag: nil,
-          rows: []
-        }
-
-        @current_row = nil
-        @current_cell = nil
+      def start
+        @context.current_table = ParsedTable.new
+        @context.current_row = nil
+        @context.current_cell = nil
       end
 
-      def parse_table_line(line, closed_block)
+      def parse_line(line, closed_block)
         table_id = parse_table_id(line)
-
-        @current_table[:id] = table_id unless table_id.nil?
+        @context.current_table.id = table_id unless table_id.nil?
 
         table_tag = parse_table_tag(line)
-
-        @current_table[:tag] = table_tag if table_tag && @current_table[:tag].nil?
-
-        #
-        # Start row
-        #
+        if table_tag && @context.current_table.tag.nil?
+          @context.current_table.tag = table_tag
+        end
 
         if row_start?(line)
-          @current_row = []
+          @context.current_row = []
           return
         end
 
-        #
-        # Start cell
-        #
-
-        if @current_row && cell_start?(line)
-          @current_cell = {
-            strings: [],
-            paragraphs: []
-          }
-
+        if @context.current_row && cell_start?(line)
+          @context.current_cell = ParsedCell.new
           return
         end
 
-        #
-        # Cell contents
-        #
+        if @context.current_cell
+          Syntax::TextTokens.append(line, @context.current_cell.strings)
 
-        if @current_cell
-          parse_text_tokens(line, @current_cell)
-
-          #
-          # One cell can contain multiple Para statements.
-          #
-
-          if block_closed?(closed_block, "Para")
-            flush_cell_paragraph(@current_cell)
+          if @context.block_tracker.closed?(closed_block, "Para")
+            flush_cell_paragraph(@context.current_cell)
             return
           end
 
-          if block_closed?(closed_block, "Cell")
-            flush_cell_paragraph(@current_cell)
+          if @context.block_tracker.closed?(closed_block, "Cell")
+            flush_cell_paragraph(@context.current_cell)
 
-            @current_row <<
-              @current_cell[:paragraphs].join("\n")
+            @context.current_row <<
+              @context.current_cell.paragraphs.join("\n")
 
-            @current_cell = nil
+            @context.current_cell = nil
             return
           end
         end
 
-        #
-        # End row
-        #
-
-        if @current_row &&
-           block_closed?(closed_block, "Row")
-          @current_table[:rows] << @current_row
-          @current_row = nil
+        if @context.current_row &&
+           @context.block_tracker.closed?(closed_block, "Row")
+          @context.current_table.rows << @context.current_row
+          @context.current_row = nil
           return
         end
 
-        #
-        # End table
-        #
+        return unless @context.block_tracker.closed?(closed_block, "Tbl")
 
-        return unless block_closed?(closed_block, "Tbl")
+        table = build_table(@context.current_table)
+        @context.tables[table.id] = table if table.id
 
-        table = build_table(@current_table)
-
-        @tables[table.id] = table if table.id
-
-        @current_table = nil
-        @current_row = nil
-        @current_cell = nil
+        @context.current_table = nil
+        @context.current_row = nil
+        @context.current_cell = nil
       end
 
-      def parse_table_id(line)
-        match = line.match(
-          /\A<TblID\s+(\d+)>/
-        )
-
-        return nil unless match
-
-        match[1].to_i
-      end
-
-      def parse_table_tag(line)
-        match = line.match(
-          /<TblTag\s+`((?:\\.|[^'])*)'>/
-        )
-
-        return nil unless match
-
-        decode_string(match[1])
-      end
-
-      #
-      # <ATbl 123>
-      #
-
-      def parse_table_anchor(line)
-        match = line.match(
-          /<ATbl\s+(\d+)>/
-        )
-
-        return nil unless match
-
-        match[1].to_i
-      end
-
-      #
-      # Rows
-      #
-
-      def row_start?(line)
-        line.match?(/\A<Row(?:\s|>|$)/)
-      end
-
-      #
-      # Cells
-      #
-
-      def cell_start?(line)
-        line.match?(/\A<Cell(?:\s|>|$)/)
-      end
-
-      def flush_cell_paragraph(cell)
-        return if cell[:strings].empty?
-
-        text = cell[:strings].join
-
-        cell[:paragraphs] << text unless text.strip.empty?
-
-        cell[:strings].clear
-      end
-
-      #
-      # Build / resolve tables
-      #
-
-      def build_table(data)
-        Table.new(
-          id: data[:id],
-          tag: data[:tag],
-          rows: data[:rows]
-        )
-      end
-
-      def resolve_table_anchors(elements, tables)
+      def self.resolve_anchors(elements, tables)
         resolved = []
 
         elements.each do |element|
           if element.is_a?(TableAnchor)
             table = tables[element.id]
-
             resolved << table if table
           else
             resolved << element
@@ -190,6 +92,46 @@ module MifParser
         end
 
         resolved
+      end
+
+      private
+
+      def parse_table_id(line)
+        match = line.match(/\A<TblID\s+(\d+)>/)
+        return nil unless match
+
+        match[1].to_i
+      end
+
+      def parse_table_tag(line)
+        match = line.match(/<TblTag\s+`((?:\\.|[^'])*)'>/)
+        return nil unless match
+
+        Syntax::StringDecoder.decode(match[1])
+      end
+
+      def row_start?(line)
+        line.match?(/\A<Row(?:\s|>|$)/)
+      end
+
+      def cell_start?(line)
+        line.match?(/\A<Cell(?:\s|>|$)/)
+      end
+
+      def flush_cell_paragraph(cell)
+        return if cell.strings.empty?
+
+        text = cell.strings.join
+        cell.paragraphs << text unless text.strip.empty?
+        cell.strings.clear
+      end
+
+      def build_table(data)
+        Table.new(
+          id: data.id,
+          tag: data.tag,
+          rows: data.rows
+        )
       end
     end
   end

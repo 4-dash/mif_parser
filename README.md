@@ -7,21 +7,23 @@ Parses Adobe FrameMaker MIF files.
 
 `MifParser` separates **parsing** from **interpretation**.
 
+MIF source -> Parser -> Paragraph / List / Table -> Interpreter -> heading / body / list / table
 
-MIF source -> Parser -> Paragraph / List / etc. ->  Interpreter -> heading / body / list / etc.
 
+`MifParser.parse` still returns a `Document` of `Paragraph`, `List`, and `Table` elements.
 
-The **Parser** reads raw MIF and creates Ruby elements.
+Internally the parser runs in phases:
 
-* `ParagraphParser` parses `<Para>` blocks.
-* `TableParser` parses tables, rows, and cells.
-* `ListParser` is different: MIF lists are represented as paragraphs, so `ParagraphParser` calls `ListParser` to decide whether a parsed paragraph should become a `Paragraph` or `List`.
+* **Syntax** (`syntax/`) reads MIF blocks, `<String>` / `<Char>` tokens, and escapes.
+* **Structure** (`parser/`) builds `Para` and `Tbl` records, including table anchors (`<ATbl>`).
+* **List classification** (`classification/`) decides whether a paragraph is a `List` (ul/ol, level, marker). MIF has no list construct; this is inferred from tags and markers.
+* **Interpretation** (`interpreter/`) decides what those elements mean: heading vs body for paragraphs, and a typed result for lists and tables.
 
 The **Interpreter** determines what parsed elements mean:
 
-* `ParagraphInterpreter` → heading or body
-* `ListInterpreter` → list type, level, marker
-* `TableInterpreter` → table data
+* Paragraph → heading or body
+* List → list type, level, marker
+* Table → table data
 
 
 ## License

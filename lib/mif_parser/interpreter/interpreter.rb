@@ -1,62 +1,45 @@
 # frozen_string_literal: true
 
+require_relative "result"
 require_relative "paragraph_interpreter"
-require_relative "list_interpreter"
-require_relative "table_interpreter"
 
 module MifParser
+  # Turns parsed Document elements into typed meaning.
+  #
+  # Paragraph -> heading or body
+  # List      -> list result (ul/ol, level, marker already on the element)
+  # Table     -> table result
   class Interpreter
-    include ParagraphInterpreter
-    include ListInterpreter
-    include TableInterpreter
-
-    Result = Struct.new(
-      :type,
-      :text,
-      :heading_level,
-      :list_level,
-      :list_marker,
-      :list_type,
-      :rows,
-      :source,
-      keyword_init: true
-    ) do
-      def heading?
-        type == :heading
-      end
-
-      def body?
-        type == :body
-      end
-
-      def list?
-        type == :list
-      end
-
-      def table?
-        type == :table
-      end
-    end
-
     def self.default
       @default ||= new
     end
 
     def initialize(numbered_headings: true)
       @numbered_headings = numbered_headings
+      @paragraph_interpreter = ParagraphInterpreter.new(
+        numbered_headings: numbered_headings
+      )
     end
 
     def interpret(element)
       case element
       when List
-        interpret_list(element)
-
+        Result.new(
+          type: :list,
+          text: element.raw_text.to_s.strip,
+          list_type: element.list_type,
+          list_level: element.list_level,
+          list_marker: element.list_marker,
+          source: element
+        )
       when Paragraph
-        interpret_paragraph(element)
-
+        @paragraph_interpreter.interpret(element)
       when Table
-        interpret_table(element)
-
+        Result.new(
+          type: :table,
+          rows: element.rows,
+          source: element
+        )
       else
         Result.new(
           type: :unknown,
