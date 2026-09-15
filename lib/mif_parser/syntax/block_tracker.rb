@@ -8,16 +8,14 @@ module MifParser
         @stack = []
       end
 
-      def update(line)
-        return @stack.pop if line.start_with?(">")
+      def update(statement)
+        return @stack.pop if statement.close?
 
-        match = line.match(/\A<([A-Za-z][A-Za-z0-9]*)\b/)
-        return nil unless match
+        tag = statement.tag
+        return nil unless tag
+        return nil if statement.complete?
 
-        unless line.match?(/>\s*(?:#.*)?\z/)
-          @stack << match[1]
-        end
-
+        @stack << tag
         nil
       end
 

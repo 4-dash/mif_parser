@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../syntax/block_tracker"
+require_relative "../syntax/statements"
 require_relative "../classification/classification"
 require_relative "paragraph_parser"
 require_relative "table_parser"
@@ -15,7 +16,9 @@ module MifParser
                     :current_tag,
                     :current_table,
                     :current_row,
-                    :current_cell
+                    :current_cell,
+                    :current_title,
+                    :saved_tags
       attr_reader :block_tracker
 
       def initialize
@@ -26,11 +29,13 @@ module MifParser
         @current_table = nil
         @current_row = nil
         @current_cell = nil
+        @current_title = false
+        @saved_tags = []
         @block_tracker = Syntax::BlockTracker.new
       end
     end
 
-    # Walks MIF lines and delegates Para vs Tbl, then classifies lists.
+    # Walks MIF statements and delegates Para vs Tbl, then classifies lists.
     class DocumentParser
       def initialize(input)
         @input = input
@@ -46,29 +51,13 @@ module MifParser
           next if line.empty?
           next if comment?(line)
 
-          closed_block = @context.block_tracker.update(line)
-
-          if @table_parser.start?(line)
-            @table_parser.start
-            next
+          Syntax::Statements.parse_line(line).each do |statement|
+            handle_statement(statement)
           end
-
-          if @context.current_table
-            @table_parser.parse_line(line, closed_block)
-            next
-          end
-
-          if @paragraph_parser.start?(line)
-            @paragraph_parser.start
-            next
-          end
-
-          next unless @context.current_para
-
-          @paragraph_parser.parse_line(line, closed_block)
         end
 
         @paragraph_parser.flush if @context.current_para
+        @table_parser.finish if @context.current_table
 
         resolved_elements = TableParser.resolve_anchors(
           @context.elements,
@@ -88,6 +77,40 @@ module MifParser
       end
 
       private
+
+      def handle_statement(statement)
+        closed_block = @context.block_tracker.update(statement)
+        line = statement.text
+
+        if @table_parser.start?(line)
+          @table_parser.start
+          @table_parser.finish if statement.complete?
+          return
+        end
+
+        if @paragraph_parser.start?(line) && paragraph_allowed?
+          @paragraph_parser.start
+          if statement.complete?
+            @paragraph_parser.flush
+          end
+          return
+        end
+
+        if @context.current_para
+          @paragraph_parser.parse_line(line, closed_block)
+          return
+        end
+
+        return unless @context.current_table
+
+        @table_parser.parse_statement(statement, closed_block)
+      end
+
+      def paragraph_allowed?
+        @context.current_cell ||
+          @context.current_title ||
+          !@context.current_table
+      end
 
       def each_line(&block)
         if @input.respond_to?(:each_line)

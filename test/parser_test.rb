@@ -431,10 +431,276 @@ class ParserTest < Minitest::Test
     assert_equal "Before table", before.raw_text
     assert_equal 42, table.id
     assert_equal "Basic", table.tag
-    assert_equal [%w[A1 B1]], table.rows
+    assert_equal [%w[A1 B1]], cell_texts(table)
+    assert_instance_of MifParser::Cell, table.rows[0][0]
+    assert_instance_of MifParser::Paragraph, table.rows[0][0].elements.first
     assert_equal "After table", after.raw_text
 
     assert_equal "Body", before.tag
     assert_nil after.tag
+  end
+
+  def test_table_cell_contains_two_paragraph_elements
+    document = parse_fixture("tables.mif")
+    table = document.tables.first
+    cell = table.rows[0][0]
+
+    assert_equal 2, cell.elements.size
+    assert_equal "A1", cell.elements[0].raw_text
+    assert_equal "Second paragraph", cell.elements[1].raw_text
+    assert_equal "A1\nSecond paragraph", cell.text
+  end
+
+  def test_framemaker_like_table_with_header_body_and_cell_content
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+      <Tbls
+        <Tbl
+          <TblID 1>
+          <TblTag `Format A'>
+          <TblTitle
+            <TblTitleContent
+              <Para
+                <ParaLine
+                  <String `Parts'>
+                >
+              >
+            >
+          >
+          <TblH
+            <Row
+              <Cell
+                <CellContent
+                  <Para
+                    <ParaLine
+                      <String `Name'>
+                    >
+                  >
+                >
+              >
+              <Cell
+                <CellContent
+                  <Para
+                    <ParaLine
+                      <String `Value'>
+                    >
+                  >
+                >
+              >
+            >
+          >
+          <TblBody
+            <Row
+              <Cell
+                <CellContent
+                  <Para
+                    <ParaLine
+                      <String `Alpha'>
+                    >
+                  >
+                >
+              >
+              <Cell
+                <CellContent
+                  <Para
+                    <ParaLine
+                      <String `1'>
+                    >
+                  >
+                >
+              >
+            >
+          >
+        >
+      >
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `See table:'>
+          <ATbl 1>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 2, document.size
+    assert_equal "See table:", document.elements[0].raw_text
+
+    table = document.elements[1]
+    assert_instance_of MifParser::Table, table
+    assert_equal "Format A", table.tag
+    assert_equal "Parts", table.title.first.raw_text
+    assert_equal ["Name", "Value"], table.header_rows.first.map(&:text)
+    assert_equal ["Alpha", "1"], table.body_rows.first.map(&:text)
+    assert_equal(
+      [%w[Name Value], %w[Alpha 1]],
+      cell_texts(table)
+    )
+  end
+
+  def test_empty_and_self_closing_cells
+    mif = <<~'MIF'
+      <Para
+        <ParaLine
+          <ATbl 7>
+        >
+      >
+      <Tbl
+        <TblID 7>
+        <Row
+          <Cell
+            <Para
+              <ParaLine
+                <String `left'>
+              >
+            >
+          >
+          <Cell
+          >
+          <Cell>
+          <Cell
+            <Para
+              <ParaLine
+                <String `right'>
+              >
+            >
+          >
+        >
+      >
+    MIF
+
+    table = MifParser.parse(mif).tables.first
+    texts = table.rows.first.map(&:text)
+
+    assert_equal ["left", "", "", "right"], texts
+    assert_empty table.rows.first[1].elements
+    assert_empty table.rows.first[2].elements
+  end
+
+  def test_inline_cell_on_one_line
+    mif = <<~'MIF'
+      <Para
+        <ParaLine
+          <ATbl 4>
+        >
+      >
+      <Tbl
+        <TblID 4>
+        <Row
+          <Cell <Para <ParaLine <String `inline'> > > >
+        >
+      >
+    MIF
+
+    table = MifParser.parse(mif).tables.first
+
+    assert_equal [["inline"]], cell_texts(table)
+    assert_instance_of MifParser::Paragraph, table.rows[0][0].elements.first
+  end
+
+  def test_list_inside_table_cell
+    mif = <<~'MIF'
+      <Para
+        <ParaLine
+          <ATbl 5>
+        >
+      >
+      <Tbl
+        <TblID 5>
+        <Row
+          <Cell
+            <Para
+              <PgfTag `Numbered List'>
+              <PgfNumString `1.\t'>
+              <ParaLine
+                <String `First item'>
+              >
+            >
+            <Para
+              <PgfNumString `2.\t'>
+              <ParaLine
+                <String `Second item'>
+              >
+            >
+          >
+        >
+      >
+    MIF
+
+    cell = MifParser.parse(mif).tables.first.rows[0][0]
+
+    assert_equal 2, cell.elements.size
+    assert_instance_of MifParser::List, cell.elements[0]
+    assert_instance_of MifParser::List, cell.elements[1]
+    assert_equal :ol, cell.elements[0].list_type
+    assert_equal :ol, cell.elements[1].list_type
+    assert_equal "1.", cell.elements[0].list_marker
+    assert_equal "2.", cell.elements[1].list_marker
+    assert_equal "First item", cell.elements[0].raw_text
+    assert_equal "Second item", cell.elements[1].raw_text
+  end
+
+  def test_missing_table_drops_anchor
+    mif = <<~'MIF'
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `before'>
+          <ATbl 99>
+          <String `after'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 2, document.size
+    assert_empty document.tables
+    assert_equal "before", document.elements[0].raw_text
+    assert_equal "after", document.elements[1].raw_text
+  end
+
+  def test_unreferenced_table_is_not_in_document
+    mif = <<~'MIF'
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `before'>
+        >
+      >
+      <Tbl
+        <TblID 5>
+        <Row
+          <Cell
+            <Para
+              <ParaLine
+                <String `hidden'>
+              >
+            >
+          >
+        >
+      >
+      <Para
+        <ParaLine
+          <String `after'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 2, document.size
+    assert_empty document.tables
+    assert_equal "before", document.elements[0].raw_text
+    assert_equal "after", document.elements[1].raw_text
+  end
+
+  private
+
+  def cell_texts(table)
+    table.rows.map do |row|
+      row.map(&:text)
+    end
   end
 end

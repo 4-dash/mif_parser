@@ -40,6 +40,12 @@ module MifParser
           rows: element.rows,
           source: element
         )
+      when Cell
+        Result.new(
+          type: :cell,
+          text: element.text,
+          source: element
+        )
       else
         Result.new(
           type: :unknown,

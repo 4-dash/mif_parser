@@ -29,6 +29,10 @@ module MifParser
       def table?
         type == :table
       end
+
+      def cell?
+        type == :cell
+      end
     end
   end
 end

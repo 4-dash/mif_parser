@@ -11,8 +11,28 @@ elements:
     type: table
     table?: true
     rows:
-      - ["A1\nSecond paragraph", "B1"]
-      - ["A2", "B2"]
+      - - class: MifParser::Cell
+          text: "A1\nSecond paragraph"
+          elements:
+            - class: MifParser::Paragraph
+              raw_text: "A1"
+            - class: MifParser::Paragraph
+              raw_text: "Second paragraph"
+        - class: MifParser::Cell
+          text: "B1"
+          elements:
+            - class: MifParser::Paragraph
+              raw_text: "B1"
+      - - class: MifParser::Cell
+          text: "A2"
+          elements:
+            - class: MifParser::Paragraph
+              raw_text: "A2"
+        - class: MifParser::Cell
+          text: "B2"
+          elements:
+            - class: MifParser::Paragraph
+              raw_text: "B2"
 
   - class: MifParser::Paragraph
     raw_text: "After table."

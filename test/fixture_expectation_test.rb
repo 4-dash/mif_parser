@@ -85,18 +85,52 @@ class FixtureExpectationTest < Minitest::Test
 
   private
 
-  def fixture_property(element, property)
-    return element.class.name if property == "class"
+      def fixture_property(element, property)
+        return element.class.name if property == "class"
 
-    return element.public_send(property) if element.respond_to?(property)
+        if element.respond_to?(property)
+          return dump_fixture_value(element.public_send(property))
+        end
 
-    result = element.interpret
+        result = element.interpret
 
-    return result.public_send(property) if result.respond_to?(property)
+        return dump_fixture_value(result.public_send(property)) if result.respond_to?(property)
 
-    flunk(
-      "Neither #{element.class} nor " \
-      "#{result.class} has property #{property.inspect}"
-    )
-  end
+        flunk(
+          "Neither #{element.class} nor " \
+          "#{result.class} has property #{property.inspect}"
+        )
+      end
+
+      def dump_fixture_value(value)
+        case value
+        when Array
+          value.map { |item| dump_fixture_value(item) }
+        when MifParser::Cell
+          dumped = {
+            "class" => value.class.name,
+            "text" => value.text
+          }
+          dumped["elements"] = dump_fixture_value(value.elements)
+          dumped
+        when MifParser::Paragraph
+          dumped = {
+            "class" => value.class.name,
+            "raw_text" => value.raw_text
+          }
+          dumped["tag"] = value.tag unless value.tag.nil?
+          dumped
+        when MifParser::List
+          dumped = {
+            "class" => value.class.name,
+            "raw_text" => value.raw_text,
+            "list_type" => value.list_type,
+            "list_marker" => value.list_marker
+          }
+          dumped["tag"] = value.tag unless value.tag.nil?
+          dumped
+        else
+          value
+        end
+      end
 end

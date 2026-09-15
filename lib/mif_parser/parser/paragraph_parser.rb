@@ -58,6 +58,7 @@ module MifParser
 
       def flush
         append_paragraph_elements(@context.current_para)
+        @context.current_para = nil
       end
 
       private
@@ -84,16 +85,27 @@ module MifParser
         data.strings.clear
       end
 
+      def destination
+        if @context.current_cell
+          @context.current_cell.elements
+        elsif @context.current_title
+          @context.current_table.title
+        else
+          @context.elements
+        end
+      end
+
       def append_paragraph_elements(data)
         return unless data
 
         flush_paragraph_text_part(data)
 
+        sink = destination
         first_text_part = true
 
         data.parts.each do |part|
           if part.is_a?(TableAnchor)
-            @context.elements << part
+            sink << part
             next
           end
 
@@ -101,10 +113,10 @@ module MifParser
             tag: (data.tag if first_text_part),
             number_string: (data.number_string if first_text_part),
             text: part,
-            previous_element: @context.elements.last
+            previous_element: sink.last
           )
 
-          @context.elements << element unless element.raw_text.strip.empty?
+          sink << element unless element.raw_text.strip.empty?
 
           first_text_part = false
         end

@@ -200,12 +200,25 @@ class InterpreterTest < Minitest::Test
   end
 
   def test_table_interpretation
+    cell_a = MifParser::Cell.new(
+      elements: [MifParser::Paragraph.new(text: "A")]
+    )
+    cell_b = MifParser::Cell.new(
+      elements: [MifParser::Paragraph.new(text: "B")]
+    )
+    cell_c = MifParser::Cell.new(
+      elements: [MifParser::Paragraph.new(text: "C")]
+    )
+    cell_d = MifParser::Cell.new(
+      elements: [MifParser::Paragraph.new(text: "D")]
+    )
+
     table = MifParser::Table.new(
       id: 10,
       tag: "Basic",
       rows: [
-        %w[A B],
-        %w[C D]
+        [cell_a, cell_b],
+        [cell_c, cell_d]
       ]
     )
 
@@ -213,13 +226,19 @@ class InterpreterTest < Minitest::Test
 
     assert result.table?
     assert_equal :table, result.type
+    assert_equal table.rows, result.rows
+    assert_equal "A", result.rows[0][0].text
+  end
 
-    assert_equal(
-      [
-        %w[A B],
-        %w[C D]
-      ],
-      result.rows
+  def test_cell_interpretation
+    cell = MifParser::Cell.new(
+      elements: [MifParser::Paragraph.new(text: "A1")]
     )
+
+    result = cell.interpret
+
+    assert result.cell?
+    assert_equal :cell, result.type
+    assert_equal "A1", result.text
   end
 end

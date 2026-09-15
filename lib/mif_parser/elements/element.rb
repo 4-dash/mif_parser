@@ -15,6 +15,7 @@ module MifParser
       list_level
       list_marker
       list_type
+      cell?
     ].freeze
 
     def initialize(tag: nil)

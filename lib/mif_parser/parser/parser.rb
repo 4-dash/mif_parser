@@ -6,7 +6,7 @@ module MifParser
   # Public parse entry. Reads MIF into a Document of Paragraph, List, and Table.
   #
   # syntax/            tokens, escapes, block nesting
-  # document_parser.rb orchestrates the line scan
+  # document_parser.rb orchestrates MIF statements
   # paragraph_parser.rb <Para>, tags, text, table anchors
   # table_parser.rb     <Tbl>, rows, cells, anchor resolution
   # classification/     Paragraph vs List (MIF has no list construct)
