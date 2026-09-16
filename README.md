@@ -2,31 +2,53 @@
 
 Parses Adobe FrameMaker MIF files.
 
+```ruby
+document = MifParser.parse(io_or_string)
 
-### Parsing and Interpretation
+document.each do |element|
+  result = element.interpret
+  # result.type         :heading | :body | :list | :table | :cell
+  # result.text         plain text
+  # result.html_text    same text with <b> / <i> / <u>
+end
+```
 
-`MifParser` separates **parsing** from **interpretation**.
+Pipeline: **syntax** → **structure** (`Para` / `Tbl`) → **list classification** → **interpretation**.
 
-MIF source -> Parser -> Paragraph / List / Table -> Interpreter -> heading / body / list / table
+MIF has no list construct; lists are inferred from tags and `PgfNumString` markers.
 
+## Elements
 
-`MifParser.parse` still returns a `Document` of `Paragraph`, `List`, and `Table` elements.
+`Document` is enumerable (`#paragraphs`, `#lists`, `#tables`).
 
-Internally the parser runs in phases:
+| Class | Meaning |
+|---|---|
+| `Paragraph` | heading or body |
+| `List` | `:ol` / `:ul`, marker, level |
+| `Table` | `rows` is a grid of `Cell`s |
+| `Cell` | nested `Paragraph` / `List` |
 
-* **Syntax** (`syntax/`) reads MIF blocks, `<String>` / `<Char>` tokens, and escapes.
-* **Structure** (`parser/`) builds `Para` and `Tbl` records, including table anchors (`<ATbl>`). Table cells are `Cell` nodes whose children are `Paragraph` / `List`, same as the document flow.
-* **List classification** (`classification/`) decides whether a paragraph is a `List` (ul/ol, level, marker). MIF has no list construct; this is inferred from tags and markers.
-* **Interpretation** (`interpreter/`) decides what those elements mean: heading vs body for paragraphs, and a typed result for lists and tables.
+Heading and list levels are **0-based** (`Title1` / first list item → `0`). An explicit heading style wins over numbering (`Title4` stays 3 even if numbered `4.3`).
 
-The **Interpreter** determines what parsed elements mean:
+## Format
 
-* Paragraph → heading or body
-* List → list type, level, marker
-* Table → table data (`rows` is a grid of `Cell` elements)
-* Cell → joined cell text; interpret each `cell.elements` entry for heading / body / list
+`document.catalog` is `PgfTag → Format` from `<PgfCatalog>`. Each paragraph/list has:
 
+- `format` — catalog entry plus local `<Pgf>` overlay
+- `runs` — character spans from inline `<Font>`
+- `html_text` / `interpret.html_text` — HTML view of the runs
+
+An empty `<Font>` resets to the paragraph format.
+
+Collected MIF tags (add names to collect more):
+
+```ruby
+MifParser::Format::PROPERTY_TAGS
+# => %w[FWeight FAngle FUnderlining]
+```
+
+`format.bold?`, `format.italic?`, `format.underline?` and `format.to_h` read those properties. `text` stays plain so you can render HTML, Markdown, or anything else from `format` / `runs`.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+MIT
