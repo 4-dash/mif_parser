@@ -30,6 +30,16 @@ module MifParser
       text.to_s.strip
     end
 
+    def html_text
+      elements.map do |element|
+        if element.respond_to?(:html_text)
+          element.html_text
+        else
+          cell_element_text(element)
+        end
+      end.join("\n")
+    end
+
     private
 
     def cell_element_text(element)

@@ -22,6 +22,12 @@ module MifParser
       def closed?(closed_block, name)
         !closed_block.nil? && closed_block.casecmp?(name)
       end
+
+      def inside?(name)
+        @stack.any? do |tag|
+          tag.casecmp?(name)
+        end
+      end
     end
   end
 end

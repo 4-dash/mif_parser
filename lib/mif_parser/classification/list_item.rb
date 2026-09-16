@@ -2,6 +2,8 @@
 
 require_relative "../elements/paragraph"
 require_relative "../elements/list"
+require_relative "../format"
+require_relative "../text_run"
 
 module MifParser
   module Classification
@@ -9,9 +11,16 @@ module MifParser
     module ListItem
       extend self
 
-      def build(tag:, number_string:, text:, previous_element: nil)
+      def build(tag:, number_string:, text:, previous_element: nil, format: nil, runs: nil)
         marker = Classification.clean_marker(number_string)
         list_text = text.to_s
+        format ||= Format.new
+        runs ||= [
+          TextRun.new(
+            text: list_text,
+            format: format
+          )
+        ]
 
         if marker.empty?
           extracted = extract_leading_list_marker(tag, list_text)
@@ -26,7 +35,9 @@ module MifParser
           return Paragraph.new(
             tag: tag,
             number_string: number_string,
-            text: text
+            text: text,
+            format: format,
+            runs: runs
           )
         end
 
@@ -34,6 +45,8 @@ module MifParser
           tag: tag,
           number_string: number_string,
           text: list_text,
+          format: format,
+          runs: TextRun.drop_prefix(runs, text.to_s, list_text),
           list_type: list_type_for(tag, marker),
           list_level: list_level_for(
             tag,

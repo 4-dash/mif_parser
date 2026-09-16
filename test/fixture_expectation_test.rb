@@ -129,6 +129,13 @@ class FixtureExpectationTest < Minitest::Test
           }
           dumped["tag"] = value.tag unless value.tag.nil?
           dumped
+        when MifParser::Format
+          value.to_h
+        when MifParser::TextRun
+          {
+            "text" => value.text,
+            "format" => dump_fixture_value(value.format)
+          }
         else
           value
         end

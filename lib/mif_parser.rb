@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require_relative "mif_parser/version"
+require_relative "mif_parser/format"
+require_relative "mif_parser/text_run"
+require_relative "mif_parser/html_text"
 
 # Public document nodes
 require_relative "mif_parser/elements/element"

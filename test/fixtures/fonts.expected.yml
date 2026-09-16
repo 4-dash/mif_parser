@@ -1,0 +1,62 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: "001 Title2"
+    raw_text: "Bold from catalog"
+    type: heading
+    heading?: true
+    heading_level: 1
+    text: "Bold from catalog"
+    html_text: "<b>Bold from catalog</b>"
+    format:
+      FWeight: Bold
+      FAngle: Regular
+      FUnderlining: FNoUnderlining
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "Bold from local Pgf"
+    type: body
+    text: "Bold from local Pgf"
+    html_text: "<b>Bold from local Pgf</b>"
+    format:
+      FWeight: Bold
+      FAngle: Regular
+      FUnderlining: FNoUnderlining
+
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "The power feed terminal is worn."
+    type: body
+    text: "The power feed terminal is worn."
+    html_text: "The <b>power</b> feed terminal is worn."
+    format:
+      FWeight: Regular
+      FAngle: Regular
+      FUnderlining: FNoUnderlining
+    runs:
+      - text: "The "
+        format:
+          FWeight: Regular
+          FAngle: Regular
+          FUnderlining: FNoUnderlining
+      - text: "power"
+        format:
+          FWeight: Bold
+          FAngle: Regular
+          FUnderlining: FNoUnderlining
+      - text: " feed terminal is worn."
+        format:
+          FWeight: Regular
+          FAngle: Regular
+          FUnderlining: FNoUnderlining
+
+  - class: MifParser::Paragraph
+    tag: Emphasis
+    raw_text: "Italic underline"
+    type: body
+    text: "Italic underline"
+    html_text: "<i><u>Italic underline</u></i>"
+    format:
+      FWeight: Regular
+      FAngle: Italic
+      FUnderlining: FSingle

@@ -2,6 +2,7 @@
 
 require_relative "../elements/paragraph"
 require_relative "../elements/list"
+require_relative "../text_run"
 
 module MifParser
   module Classification
@@ -69,6 +70,12 @@ module MifParser
                 tag: item[:source].tag,
                 number_string: item[:source].number_string,
                 text: item[:text],
+                format: item[:source].format,
+                runs: TextRun.drop_prefix(
+                  item[:source].runs,
+                  item[:source].raw_text.to_s,
+                  item[:text]
+                ),
                 list_type: :ol,
                 list_level: ListItem.list_level_for(
                   item[:source].tag,

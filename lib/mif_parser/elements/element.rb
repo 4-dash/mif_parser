@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "../format"
+require_relative "../html_text"
+
 module MifParser
   class Element
-    attr_reader :tag
+    attr_reader :tag, :format
 
     INTERPRETED_METHODS = %i[
       type
@@ -18,8 +21,9 @@ module MifParser
       cell?
     ].freeze
 
-    def initialize(tag: nil)
+    def initialize(tag: nil, format: nil)
       @tag = tag
+      @format = format || Format.new
     end
 
     def interpret(interpreter = Interpreter.default)
@@ -37,5 +41,9 @@ module MifParser
     end
 
     alias clean_text import_text
+
+    def html_text
+      import_text
+    end
   end
 end

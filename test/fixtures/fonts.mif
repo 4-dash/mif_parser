@@ -1,0 +1,69 @@
+<MIFFile 7.00>
+
+<PgfCatalog
+ <Pgf
+  <PgfTag `001 Title2'>
+  <PgfFont
+   <FWeight `Bold'>
+   <FAngle `Regular'>
+   <FUnderlining FNoUnderlining>
+  >
+ >
+ <Pgf
+  <PgfTag `Body'>
+  <PgfFont
+   <FWeight `Regular'>
+   <FAngle `Regular'>
+   <FUnderlining FNoUnderlining>
+  >
+ >
+ <Pgf
+  <PgfTag `Emphasis'>
+  <PgfFont
+   <FWeight `Regular'>
+   <FAngle `Italic'>
+   <FUnderlining FSingle>
+  >
+ >
+>
+
+<Para
+ <PgfTag `001 Title2'>
+ <ParaLine
+  <String `Bold from catalog'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <Pgf
+  <PgfFont
+   <FWeight `Bold'>
+  >
+ >
+ <ParaLine
+  <String `Bold from local Pgf'>
+ >
+>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `The '>
+  <Font
+   <FWeight `Bold'>
+  >
+  <String `power'>
+  <Font
+   <FWeight `Regular'>
+  >
+  <String ` feed terminal is worn.'>
+ >
+>
+
+<Para
+ <PgfTag `Emphasis'>
+ <ParaLine
+  <String `Italic underline'>
+ >
+>

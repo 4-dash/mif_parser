@@ -27,6 +27,7 @@ module MifParser
         Result.new(
           type: :list,
           text: element.raw_text.to_s.strip,
+          html_text: element.html_text.to_s.strip,
           list_type: element.list_type,
           list_level: element.list_level,
           list_marker: element.list_marker,
@@ -44,6 +45,7 @@ module MifParser
         Result.new(
           type: :cell,
           text: element.text,
+          html_text: element.html_text,
           source: element
         )
       else

@@ -5,6 +5,7 @@ require_relative "../syntax/statements"
 require_relative "../classification/classification"
 require_relative "paragraph_parser"
 require_relative "table_parser"
+require_relative "catalog_parser"
 
 module MifParser
   class Parser
@@ -18,7 +19,8 @@ module MifParser
                     :current_row,
                     :current_cell,
                     :current_title,
-                    :saved_tags
+                    :saved_tags,
+                    :catalog
       attr_reader :block_tracker
 
       def initialize
@@ -31,6 +33,7 @@ module MifParser
         @current_cell = nil
         @current_title = false
         @saved_tags = []
+        @catalog = {}
         @block_tracker = Syntax::BlockTracker.new
       end
     end
@@ -42,6 +45,7 @@ module MifParser
         @context = Context.new
         @paragraph_parser = ParagraphParser.new(@context)
         @table_parser = TableParser.new(@context)
+        @catalog_parser = CatalogParser.new(@context)
       end
 
       def parse
@@ -58,6 +62,7 @@ module MifParser
 
         @paragraph_parser.flush if @context.current_para
         @table_parser.finish if @context.current_table
+        @catalog_parser.finish
 
         resolved_elements = TableParser.resolve_anchors(
           @context.elements,
@@ -72,7 +77,8 @@ module MifParser
         Document.new(
           Classification::AmbiguousSequence.classify(
             resolved_elements
-          )
+          ),
+          catalog: @context.catalog
         )
       end
 
@@ -97,9 +103,11 @@ module MifParser
         end
 
         if @context.current_para
-          @paragraph_parser.parse_line(line, closed_block)
+          @paragraph_parser.parse_statement(statement, closed_block)
           return
         end
+
+        @catalog_parser.parse_statement(statement, closed_block)
 
         return unless @context.current_table
 

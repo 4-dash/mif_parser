@@ -207,7 +207,7 @@ class ParserTest < Minitest::Test
     assert_equal "First list item", list.raw_text
 
     assert_equal :ol, list.list_type
-    assert_equal 1, list.list_level
+    assert_equal 0, list.list_level
     assert_equal "1.", list.list_marker
   end
 
@@ -256,7 +256,7 @@ class ParserTest < Minitest::Test
     assert_instance_of MifParser::List, list
 
     assert_equal :ul, list.list_type
-    assert_equal 1, list.list_level
+    assert_equal 0, list.list_level
     assert_equal "•", list.list_marker
     assert_equal "Bullet item", list.raw_text
   end
@@ -694,6 +694,345 @@ class ParserTest < Minitest::Test
     assert_empty document.tables
     assert_equal "before", document.elements[0].raw_text
     assert_equal "after", document.elements[1].raw_text
+  end
+
+  def test_catalog_format_is_applied_to_paragraphs
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `001 Title2'>
+          <PgfFont
+            <FWeight `Bold'>
+            <FAngle `Regular'>
+            <FUnderlining FNoUnderlining>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `001 Title2'>
+        <ParaLine
+          <String `Bold from catalog'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+    paragraph = document.elements.first
+
+    assert_equal "Bold", document.catalog["001 Title2"]["FWeight"]
+    assert_equal "Bold", paragraph.format["FWeight"]
+    assert paragraph.format.bold?
+    refute paragraph.format.italic?
+    refute paragraph.format.underline?
+    assert_equal "Bold from catalog", paragraph.raw_text
+    assert_equal "Bold from catalog", paragraph.text
+    assert_equal "<b>Bold from catalog</b>", paragraph.html_text
+  end
+
+  def test_local_pgf_overrides_catalog_format
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `Body'>
+          <PgfFont
+            <FWeight `Regular'>
+            <FAngle `Regular'>
+            <FUnderlining FNoUnderlining>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `Body'>
+        <Pgf
+          <PgfFont
+            <FWeight `Bold'>
+          >
+        >
+        <ParaLine
+          <String `Local bold'>
+        >
+      >
+    MIF
+
+    paragraph = MifParser.parse(mif).elements.first
+
+    assert_equal "Bold", paragraph.format["FWeight"]
+    assert paragraph.format.bold?
+    assert_equal "Local bold", paragraph.text
+    assert_equal "<b>Local bold</b>", paragraph.html_text
+  end
+
+  def test_inline_font_creates_runs_without_changing_plain_text
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `The '>
+          <Font
+            <FWeight `Bold'>
+          >
+          <String `power'>
+          <Font
+            <FWeight `Regular'>
+          >
+          <String ` feed'>
+        >
+      >
+    MIF
+
+    paragraph = MifParser.parse(mif).elements.first
+
+    assert_equal "The power feed", paragraph.raw_text
+    assert_equal "The power feed", paragraph.text
+    assert_equal "The <b>power</b> feed", paragraph.html_text
+
+    assert_equal 3, paragraph.runs.length
+    assert_equal "The ", paragraph.runs[0].text
+    refute paragraph.runs[0].bold?
+    assert_equal "power", paragraph.runs[1].text
+    assert paragraph.runs[1].bold?
+    assert_equal " feed", paragraph.runs[2].text
+    refute paragraph.runs[2].bold?
+  end
+
+  def test_empty_font_resets_to_paragraph_format
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `100 Para'>
+        <ParaLine
+          <Font
+            <FTag `'>
+            <FPlatformName `W.Arial.R.700'>
+            <FFamily `Arial'>
+            <FWeight `Bold'>
+            <FEncoding `FrameRoman'>
+            <FLocked No>
+          >
+          <String `(Example)'>
+          <Font
+            <FTag `'>
+            <FLocked No>
+          >
+          <String ` When machining SKD11, 40t with '>
+          <Font
+            <FTag `'>
+            <FPlatformName `W.Symbol.R.400'>
+            <FFamily `Symbol'>
+            <FEncoding `FrameRoman'>
+            <FLanguage NoLanguage>
+            <FLocked No>
+          >
+          <String `f'>
+          <Font
+            <FTag `'>
+            <FLocked No>
+          >
+          <String `0.2 wire and using the Paraol 250 EDM oil'>
+        >
+      >
+
+      <Para
+        <PgfTag `100 Para'>
+        <Pgf
+          <PgfLIndent  29.0 mm>
+        >
+        <ParaLine
+          <Font
+            <FTag `'>
+            <FPlatformName `W.Arial.R.700'>
+            <FFamily `Arial'>
+            <FWeight `Bold'>
+            <FEncoding `FrameRoman'>
+            <FLocked No>
+          >
+          <String `Note)'>
+          <Font
+            <FTag `'>
+            <FLocked No>
+          >
+          <String ` This table is a guideline.Machining characteristics may vary with the specific workpiece material and'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+    example = document.elements[0]
+    note = document.elements[1]
+
+    assert_equal(
+      "<b>(Example)</b> When machining SKD11, 40t with f0.2 wire and using the Paraol 250 EDM oil",
+      example.html_text
+    )
+    refute example.format.bold?
+    assert example.runs[0].bold?
+    refute example.runs[1].bold?
+
+    assert_equal(
+      "<b>Note)</b> This table is a guideline.Machining characteristics may vary with the specific workpiece material and",
+      note.html_text
+    )
+    refute note.format.bold?
+    assert note.runs[0].bold?
+    refute note.runs[1].bold?
+  end
+
+  def test_italic_and_underline_from_catalog
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `Emphasis'>
+          <PgfFont
+            <FWeight `Regular'>
+            <FAngle `Italic'>
+            <FUnderlining FSingle>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `Emphasis'>
+        <ParaLine
+          <String `Note'>
+        >
+      >
+    MIF
+
+    paragraph = MifParser.parse(mif).elements.first
+
+    assert paragraph.format.italic?
+    assert paragraph.format.underline?
+    refute paragraph.format.bold?
+    assert_equal "<i><u>Note</u></i>", paragraph.html_text
+  end
+
+  def test_inherited_tag_uses_catalog_format
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `Body'>
+          <PgfFont
+            <FWeight `Bold'>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `First'>
+        >
+      >
+
+      <Para
+        <ParaLine
+          <String `Second'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert document.elements[0].format.bold?
+    assert document.elements[1].format.bold?
+    assert_equal "Body", document.elements[1].tag
+  end
+
+  def test_unlisted_font_properties_are_ignored
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `Body'>
+          <PgfFont
+            <FWeight `Bold'>
+            <FFamily `Arial'>
+            <FSize  10.5 pt>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `Hello'>
+        >
+      >
+    MIF
+
+    paragraph = MifParser.parse(mif).elements.first
+
+    assert_equal({ "FWeight" => "Bold" }, paragraph.format.to_h)
+    assert_nil paragraph.format["FFamily"]
+    assert_nil paragraph.format["FSize"]
+  end
+
+  def test_html_text_escapes_special_characters
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <Pgf
+          <PgfFont
+            <FWeight `Bold'>
+          >
+        >
+        <ParaLine
+          <String `A < B & C'>
+        >
+      >
+    MIF
+
+    paragraph = MifParser.parse(mif).elements.first
+
+    assert_equal "A < B & C", paragraph.raw_text
+    assert_equal "<b>A &lt; B &amp; C</b>", paragraph.html_text
+  end
+
+  def test_list_items_receive_catalog_format
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <PgfCatalog
+        <Pgf
+          <PgfTag `220 List n=1)'>
+          <PgfFont
+            <FWeight `Bold'>
+          >
+        >
+      >
+
+      <Para
+        <PgfTag `220 List n=1)'>
+        <PgfNumString `1)\t'>
+        <ParaLine
+          <String `The power feed terminal is worn.'>
+        >
+      >
+    MIF
+
+    list = MifParser.parse(mif).elements.first
+
+    assert_instance_of MifParser::List, list
+    assert list.format.bold?
+    assert_equal "The power feed terminal is worn.", list.raw_text
+    assert_equal "The power feed terminal is worn.", list.text
+    assert_equal "<b>The power feed terminal is worn.</b>", list.html_text
   end
 
   private

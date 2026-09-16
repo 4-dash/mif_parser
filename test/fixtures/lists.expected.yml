@@ -41,7 +41,7 @@ elements:
     list?: true
     heading?: false
     list_type: ol
-    list_level: 1
+    list_level: 0
     list_marker: "1."
     text: "Standard numbered list item"
 
@@ -63,7 +63,7 @@ elements:
     type: list
     list?: true
     list_type: ul
-    list_level: 1
+    list_level: 0
     list_marker: "•"
     text: "Bullet item"
 
@@ -74,7 +74,7 @@ elements:
     type: list
     list?: true
     list_type: ul
-    list_level: 1
+    list_level: 0
     list_marker: "*"
     text: "Unordered item with custom marker"
 
@@ -85,7 +85,7 @@ elements:
     type: list
     list?: true
     list_type: ul
-    list_level: 1
+    list_level: 0
     list_marker: "◦"
     text: "Short UL style item"
 
@@ -96,7 +96,7 @@ elements:
     type: list
     list?: true
     list_type: ul
-    list_level: 1
+    list_level: 0
     list_marker: "▪"
     text: "Bullet marker without list style"
 

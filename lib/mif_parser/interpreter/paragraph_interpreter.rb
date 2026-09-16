@@ -25,6 +25,7 @@ module MifParser
             type: :heading,
             heading_level: tag_level,
             text: heading_text(paragraph.raw_text),
+            html_text: html_text(paragraph),
             source: paragraph
           )
         end
@@ -37,6 +38,7 @@ module MifParser
         Result.new(
           type: :body,
           text: paragraph.raw_text.to_s.strip,
+          html_text: html_text(paragraph),
           source: paragraph
         )
       end
@@ -55,6 +57,7 @@ module MifParser
           type: :heading,
           heading_level: level,
           text: heading_text(paragraph.raw_text),
+          html_text: html_text(paragraph),
           source: paragraph
         )
       end
@@ -90,6 +93,10 @@ module MifParser
 
       def heading_text(raw_text)
         raw_text.to_s.strip
+      end
+
+      def html_text(paragraph)
+        paragraph.html_text.to_s.strip
       end
 
       def clean_number_string(value)

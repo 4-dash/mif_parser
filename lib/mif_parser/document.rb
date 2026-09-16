@@ -4,10 +4,11 @@ module MifParser
   class Document
     include Enumerable
 
-    attr_reader :elements
+    attr_reader :elements, :catalog
 
-    def initialize(elements = [])
+    def initialize(elements = [], catalog: {})
       @elements = elements
+      @catalog = catalog
     end
 
     def each(&block)

@@ -6,7 +6,7 @@ elements:
     type: heading
     heading?: true
     body?: false
-    heading_level: 1
+    heading_level: 3
     text: "Wire Breakage Tests"
 
   - class: MifParser::Paragraph

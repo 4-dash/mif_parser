@@ -15,6 +15,20 @@ class InterpreterTest < Minitest::Test
     assert_equal :heading, result.type
     assert_equal 1, result.heading_level
     assert_equal "Installation", result.text
+    assert_equal "Installation", result.html_text
+  end
+
+  def test_interpret_exposes_html_text
+    paragraph = MifParser::Paragraph.new(
+      tag: "Body",
+      text: "The power feed",
+      format: MifParser::Format.new("FWeight" => "Bold")
+    )
+
+    result = paragraph.interpret
+
+    assert_equal "The power feed", result.text
+    assert_equal "<b>The power feed</b>", result.html_text
   end
 
   def test_title_tag_is_heading
@@ -54,7 +68,7 @@ class InterpreterTest < Minitest::Test
     assert_equal 2, result.heading_level
   end
 
-  def test_numeric_level_overrides_tag_level
+  def test_heading_tag_level_wins_over_number_string
     paragraph = MifParser::Paragraph.new(
       tag: "040 Title4",
       number_string: "4.3\t",
@@ -64,7 +78,7 @@ class InterpreterTest < Minitest::Test
     result = paragraph.interpret
 
     assert result.heading?
-    assert_equal 1, result.heading_level
+    assert_equal 3, result.heading_level
   end
 
   def test_ordered_list_interpretation
@@ -87,6 +101,7 @@ class InterpreterTest < Minitest::Test
     assert_equal 1, result.list_level
     assert_equal "1)", result.list_marker
     assert_equal "First item", result.text
+    assert_equal "First item", result.html_text
   end
 
   def test_unordered_list_interpretation

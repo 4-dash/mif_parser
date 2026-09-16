@@ -6,6 +6,7 @@ module MifParser
     Result = Struct.new(
       :type,
       :text,
+      :html_text,
       :heading_level,
       :list_level,
       :list_marker,

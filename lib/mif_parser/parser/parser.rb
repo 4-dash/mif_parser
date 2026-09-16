@@ -7,7 +7,8 @@ module MifParser
   #
   # syntax/            tokens, escapes, block nesting
   # document_parser.rb orchestrates MIF statements
-  # paragraph_parser.rb <Para>, tags, text, table anchors
+  # catalog_parser.rb  <PgfCatalog> paragraph formats
+  # paragraph_parser.rb <Para>, tags, text, table anchors, font runs
   # table_parser.rb     <Tbl>, rows, cells, anchor resolution
   # classification/     Paragraph vs List (MIF has no list construct)
   class Parser
