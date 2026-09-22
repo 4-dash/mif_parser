@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.3.0] - 22.09.2026
+
+- Removed the interpreter layer. Heading vs body, list type, and table/cell type live on the document elements (`element.type`, `element.heading?`, `element.heading_level`).
+- Breaking: `element.interpret` and `MifParser::Interpreter` are gone.
+
 ## [0.2.1] - 25.08.2026
 
 - Added list support. Refactored code to be modular.

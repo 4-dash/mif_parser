@@ -7,33 +7,53 @@ module MifParser
   class Element
     attr_reader :tag, :format
 
-    INTERPRETED_METHODS = %i[
-      type
-      text
-      heading?
-      body?
-      list?
-      table?
-      heading_level
-      list_level
-      list_marker
-      list_type
-      cell?
-    ].freeze
-
     def initialize(tag: nil, format: nil)
       @tag = tag
       @format = format || Format.new
     end
 
-    def interpret(interpreter = Interpreter.default)
-      interpreter.interpret(self)
+    def type
+      :unknown
     end
 
-    INTERPRETED_METHODS.each do |method_name|
-      define_method(method_name) do
-        interpret.public_send(method_name)
-      end
+    def text
+      nil
+    end
+
+    def heading?
+      false
+    end
+
+    def body?
+      type == :body
+    end
+
+    def list?
+      type == :list
+    end
+
+    def table?
+      type == :table
+    end
+
+    def cell?
+      type == :cell
+    end
+
+    def heading_level
+      nil
+    end
+
+    def list_level
+      nil
+    end
+
+    def list_marker
+      nil
+    end
+
+    def list_type
+      nil
     end
 
     def import_text

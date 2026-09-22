@@ -15,6 +15,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir["lib/**/*"]
   spec.require_paths = ["lib"]
 
+  spec.add_development_dependency "irb"
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency "rubocop", "~> 1.21"
 end
+

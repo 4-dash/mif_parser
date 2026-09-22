@@ -20,6 +20,10 @@ module MifParser
       elements.empty?
     end
 
+    def type
+      :cell
+    end
+
     def text
       elements.map do |element|
         cell_element_text(element)

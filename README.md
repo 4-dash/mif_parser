@@ -6,14 +6,13 @@ Parses Adobe FrameMaker MIF files.
 document = MifParser.parse(io_or_string)
 
 document.each do |element|
-  result = element.interpret
-  # result.type         :heading | :body | :list | :table | :cell
-  # result.text         plain text
-  # result.html_text    same text with <b> / <i> / <u>
+  # element.type         :heading | :body | :list | :table | :cell
+  # element.text         plain text
+  # element.html_text    same text with <b> / <i> / <u>
 end
 ```
 
-Pipeline: **syntax** → **structure** (`Para` / `Tbl`) → **list classification** → **interpretation**.
+Pipeline: **syntax** → **structure** (`Para` / `Tbl`) → **list classification** → typed elements.
 
 MIF has no list construct; lists are inferred from tags and `PgfNumString` markers.
 
@@ -23,12 +22,34 @@ MIF has no list construct; lists are inferred from tags and `PgfNumString` marke
 
 | Class | Meaning |
 |---|---|
-| `Paragraph` | heading or body |
+| `Paragraph` | heading or body (`heading?`, `heading_level`) |
 | `List` | `:ol` / `:ul`, marker, level |
 | `Table` | `rows` is a grid of `Cell`s |
 | `Cell` | nested `Paragraph` / `List` |
 
 Heading and list levels are **0-based** (`Title1` / first list item → `0`). An explicit heading style wins over numbering (`Title4` stays 3 even if numbered `4.3`).
+
+A typical importer switches on the element itself:
+
+```ruby
+document.each do |element|
+  next unless %i[heading body list].include?(element.type)
+
+  text = element.html_text.to_s.strip
+  next if text.empty?
+
+  case element.type
+  when :heading
+    element.heading_level
+  when :body
+    text
+  when :list
+    element.list_type
+    element.list_level
+    element.list_marker
+  end
+end
+```
 
 ## Format
 
@@ -36,7 +57,7 @@ Heading and list levels are **0-based** (`Title1` / first list item → `0`). An
 
 - `format` — catalog entry plus local `<Pgf>` overlay
 - `runs` — character spans from inline `<Font>`
-- `html_text` / `interpret.html_text` — HTML view of the runs
+- `html_text` — HTML view of the runs
 
 An empty `<Font>` resets to the paragraph format.
 

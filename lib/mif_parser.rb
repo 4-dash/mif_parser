@@ -13,9 +13,6 @@ require_relative "mif_parser/elements/cell"
 require_relative "mif_parser/elements/table"
 require_relative "mif_parser/document"
 
-# Meaning: heading vs body, typed list/table results
-require_relative "mif_parser/interpreter/interpreter"
-
 # Structure: MIF source -> Document (uses syntax/ and classification/)
 require_relative "mif_parser/parser/parser"
 

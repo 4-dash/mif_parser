@@ -33,6 +33,14 @@ module MifParser
       @runs = runs || default_runs
     end
 
+    def type
+      :list
+    end
+
+    def text
+      raw_text.to_s.strip
+    end
+
     def html_text
       HtmlText.from_runs(runs)
     end

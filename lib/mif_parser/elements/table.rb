@@ -26,6 +26,10 @@ module MifParser
       end
     end
 
+    def type
+      :table
+    end
+
     def rows
       header_rows + body_rows + footer_rows
     end

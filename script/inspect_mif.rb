@@ -51,17 +51,30 @@ def raw_attributes(element)
     end
 end
 
-def interpreted_attributes(element)
-  result = element.interpret
+def semantic_attributes(element)
+  names = %i[
+    type
+    text
+    html_text
+    heading?
+    body?
+    list?
+    table?
+    cell?
+    heading_level
+    list_level
+    list_marker
+    list_type
+  ]
 
-  result
-    .to_h
-    .reject do |key, _value|
-      key == :source
-    end
-    .then do |attributes|
-      normalize(attributes)
-    end
+  names.each_with_object({}) do |name, result|
+    next unless element.respond_to?(name)
+
+    result[name.to_s] =
+      normalize(
+        element.public_send(name)
+      )
+  end
 end
 
 def inspect_document(path)
@@ -86,8 +99,8 @@ def inspect_document(path)
           "raw" =>
             raw_attributes(element),
 
-          "interpreted" =>
-            interpreted_attributes(element)
+          "semantics" =>
+            semantic_attributes(element)
         }
       end
   }

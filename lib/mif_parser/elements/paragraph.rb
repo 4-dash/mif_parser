@@ -3,6 +3,7 @@
 require_relative "element"
 require_relative "../text_run"
 require_relative "../html_text"
+require_relative "../classification/classification"
 
 module MifParser
   class Paragraph < Element
@@ -20,6 +21,26 @@ module MifParser
       @raw_text = text.to_s
       @number_string = number_string
       @runs = runs || default_runs
+    end
+
+    def type
+      heading? ? :heading : :body
+    end
+
+    def text
+      raw_text.to_s.strip
+    end
+
+    def heading?
+      !heading_level.nil?
+    end
+
+    def heading_level
+      Classification.heading_level_for(
+        tag: tag,
+        number_string: number_string,
+        raw_text: raw_text
+      )
     end
 
     def html_text
