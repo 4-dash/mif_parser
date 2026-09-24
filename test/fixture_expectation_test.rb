@@ -108,6 +108,7 @@ class FixtureExpectationTest < Minitest::Test
       MifParser::Cell => :dump_cell,
       MifParser::Paragraph => :dump_paragraph,
       MifParser::List => :dump_list,
+      MifParser::Image => :dump_image,
       MifParser::Format => :dump_format,
       MifParser::TextRun => :dump_text_run
     }.fetch(value.class, :identity_dump)
@@ -157,6 +158,13 @@ class FixtureExpectationTest < Minitest::Test
     {
       "text" => run.text,
       "format" => dump_fixture_value(run.format)
+    }
+  end
+
+  def dump_image(image)
+    {
+      "class" => image.class.name,
+      "file_name" => image.file_name
     }
   end
 end

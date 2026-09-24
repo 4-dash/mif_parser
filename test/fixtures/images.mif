@@ -1,0 +1,25 @@
+<MIFFile 7.00>
+
+<Para
+ <PgfTag `Body'>
+ <ParaLine
+  <String `See the diagram.'>
+  <AFrame 7>
+ >
+>
+
+<AFrames
+ <Frame
+  <ID 7>
+  <ImportObject
+   <ImportObFile `pump.tif'>
+   <ImportObFileDI `<c:\\Manuals\\Images\\pump.tif>'>
+   <ImportObOrigDPI  300>
+   <ImportObFixedSize Yes>
+   <ShapeRect 0.25" 0.125" 4.5" 3.2">
+   <Angle  90.0>
+   <FlipLR Yes>
+   <ImportObScale  50.0% 50.0%>
+  >
+ >
+>

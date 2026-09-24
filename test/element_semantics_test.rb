@@ -207,4 +207,22 @@ class ElementSemanticsTest < Minitest::Test
     assert_equal :cell, cell.type
     assert_equal "A1", cell.text
   end
+
+  def test_image_semantics
+    image = MifParser::Image.new(
+      id: 4,
+      file_name: "pump.tif",
+      file_path: "images/pump.tif",
+      angle: 90.0,
+      scale_x: 0.5,
+      scale_y: 0.5
+    )
+
+    assert image.image?
+    refute image.heading?
+    assert_equal :image, image.type
+    assert_equal "pump.tif", image.text
+    assert_equal 90.0, image.angle
+    refute image.flip_horizontal?
+  end
 end

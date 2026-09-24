@@ -1035,6 +1035,175 @@ class ParserTest < Minitest::Test
     assert_equal "<b>The power feed terminal is worn.</b>", list.html_text
   end
 
+  def test_image_anchor_is_resolved_at_original_position
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `Before figure.'>
+          <AFrame 7>
+          <String `After figure.'>
+        >
+      >
+
+      <AFrames
+        <Frame
+          <ID 7>
+          <ImportObject
+            <ImportObFile `pump.tif'>
+            <ImportObFileDI `<c:\\Manuals\\Images\\pump.tif>'>
+            <ImportObOrigDPI  300>
+            <ImportObFixedSize Yes>
+            <ShapeRect 0.25" 0.125" 4.5" 3.2">
+            <Angle  90.0>
+            <FlipLR Yes>
+            <ImportObScale  50.0% 50.0%>
+          >
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 3, document.size
+    assert_instance_of MifParser::Paragraph, document.elements[0]
+    assert_equal "Before figure.", document.elements[0].raw_text
+
+    image = document.elements[1]
+
+    assert_instance_of MifParser::Image, image
+    assert image.image?
+    assert_equal :image, image.type
+    assert_equal 7, image.id
+    assert_equal "pump.tif", image.file_name
+    assert_equal "c:\\Manuals\\Images\\pump.tif", image.file_path
+    assert_equal 90.0, image.angle
+    assert_equal 0.5, image.scale_x
+    assert_equal 0.5, image.scale_y
+    assert_in_delta 4.5, image.width
+    assert_in_delta 3.2, image.height
+    assert_equal 300.0, image.dpi
+    assert image.flip_horizontal?
+    assert image.fixed_size?
+
+    assert_equal "After figure.", document.elements[2].raw_text
+    assert_equal [image], document.images
+  end
+
+  def test_missing_frame_drops_anchor
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `No image here.'>
+          <AFrame 99>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 1, document.size
+    assert_equal "No image here.", document.elements.first.raw_text
+    assert_empty document.images
+  end
+
+  def test_unreferenced_frame_is_not_in_document
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <String `Just text.'>
+        >
+      >
+
+      <Frame
+        <ID 1>
+        <ImportObject
+          <ImportObFile `ignored.tif'>
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+
+    assert_equal 1, document.size
+    assert_empty document.images
+  end
+
+  def test_image_inside_table_cell
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <PgfTag `Body'>
+        <ParaLine
+          <ATbl 1>
+        >
+      >
+
+      <Tbl
+        <TblID 1>
+        <Row
+          <Cell
+            <Para
+              <ParaLine
+                <AFrame 2>
+              >
+            >
+          >
+        >
+      >
+
+      <Frame
+        <ID 2>
+        <ImportObject
+          <ImportObFile `cell-photo.jpg'>
+          <BRect 0" 0" 1.0" 0.5">
+        >
+      >
+    MIF
+
+    document = MifParser.parse(mif)
+    table = document.tables.first
+    image = table.rows[0][0].elements.first
+
+    assert_instance_of MifParser::Image, image
+    assert_equal "cell-photo.jpg", image.file_name
+    assert_in_delta 1.0, image.width
+    assert_in_delta 0.5, image.height
+  end
+
+  def test_inset_file_is_treated_as_image_reference
+    mif = <<~'MIF'
+      <MIFFile 7.00>
+
+      <Para
+        <ParaLine
+          <AFrame 3>
+        >
+      >
+
+      <Frame
+        <ID 3>
+        <Inset
+          <InsetFile `chart.ole'>
+        >
+      >
+    MIF
+
+    image = MifParser.parse(mif).images.first
+
+    assert_equal "chart.ole", image.file_name
+    assert_equal "chart.ole", image.file_path
+  end
+
   private
 
   def cell_texts(table)

@@ -11,6 +11,7 @@ require_relative "mif_parser/elements/paragraph"
 require_relative "mif_parser/elements/list"
 require_relative "mif_parser/elements/cell"
 require_relative "mif_parser/elements/table"
+require_relative "mif_parser/elements/image"
 require_relative "mif_parser/document"
 
 # Structure: MIF source -> Document (uses syntax/ and classification/)

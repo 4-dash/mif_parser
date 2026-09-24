@@ -40,6 +40,10 @@ module MifParser
       type == :cell
     end
 
+    def image?
+      type == :image
+    end
+
     def heading_level
       nil
     end

@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.0] - 22.09.2026
+
+- Added image references from `<AFrame>` / `<ImportObject>` / `<Inset>`: file name and path, rotation, scale, placed size, DPI, and flip. Image bytes are not read.
+
 ## [0.3.0] - 22.09.2026
 
 - Removed the interpreter layer. Heading vs body, list type, and table/cell type live on the document elements (`element.type`, `element.heading?`, `element.heading_level`).

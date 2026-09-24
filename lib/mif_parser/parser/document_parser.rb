@@ -5,6 +5,7 @@ require_relative "../syntax/statements"
 require_relative "../classification/classification"
 require_relative "paragraph_parser"
 require_relative "table_parser"
+require_relative "frame_parser"
 require_relative "catalog_parser"
 
 module MifParser
@@ -13,12 +14,15 @@ module MifParser
     class Context
       attr_accessor :elements,
                     :tables,
+                    :frames,
                     :current_para,
                     :current_tag,
                     :current_table,
                     :current_row,
                     :current_cell,
                     :current_title,
+                    :current_frame,
+                    :current_import,
                     :saved_tags,
                     :catalog
       attr_reader :block_tracker
@@ -26,12 +30,15 @@ module MifParser
       def initialize
         @elements = []
         @tables = {}
+        @frames = {}
         @current_para = nil
         @current_tag = nil
         @current_table = nil
         @current_row = nil
         @current_cell = nil
         @current_title = false
+        @current_frame = nil
+        @current_import = nil
         @saved_tags = []
         @catalog = {}
         @block_tracker = Syntax::BlockTracker.new
@@ -45,6 +52,7 @@ module MifParser
         @context = Context.new
         @paragraph_parser = ParagraphParser.new(@context)
         @table_parser = TableParser.new(@context)
+        @frame_parser = FrameParser.new(@context)
         @catalog_parser = CatalogParser.new(@context)
       end
 
@@ -60,58 +68,88 @@ module MifParser
           end
         end
 
-        @paragraph_parser.flush if @context.current_para
-        @table_parser.finish if @context.current_table
-        @catalog_parser.finish
+        flush_open_parsers
 
-        resolved_elements = TableParser.resolve_anchors(
-          @context.elements,
-          @context.tables
-        )
-
-        #
-        # Resolve cases that require neighboring
-        # paragraph context only after the entire
-        # document structure has been parsed.
-        #
         Document.new(
-          Classification::AmbiguousSequence.classify(
-            resolved_elements
-          ),
+          classified_elements,
           catalog: @context.catalog
         )
       end
 
       private
 
+      def flush_open_parsers
+        @paragraph_parser.flush if @context.current_para
+        @table_parser.finish if @context.current_table
+        @frame_parser.finish if @context.current_frame
+        @catalog_parser.finish
+      end
+
+      def classified_elements
+        resolved = TableParser.resolve_anchors(
+          @context.elements,
+          @context.tables
+        )
+        resolved = FrameParser.resolve_anchors(
+          resolved,
+          @context.frames
+        )
+
+        Classification::AmbiguousSequence.classify(resolved)
+      end
+
       def handle_statement(statement)
         closed_block = @context.block_tracker.update(statement)
         line = statement.text
 
-        if @table_parser.start?(line)
-          @table_parser.start
-          @table_parser.finish if statement.complete?
-          return
-        end
-
-        if @paragraph_parser.start?(line) && paragraph_allowed?
-          @paragraph_parser.start
-          if statement.complete?
-            @paragraph_parser.flush
-          end
-          return
-        end
-
-        if @context.current_para
-          @paragraph_parser.parse_statement(statement, closed_block)
-          return
-        end
+        return if start_table?(statement, line)
+        return if start_frame?(statement, line)
+        return if start_paragraph?(statement, line)
+        return if continue_paragraph?(statement, closed_block)
 
         @catalog_parser.parse_statement(statement, closed_block)
+        continue_structure(statement, closed_block)
+      end
 
-        return unless @context.current_table
+      def start_table?(statement, line)
+        return false unless @table_parser.start?(line)
 
-        @table_parser.parse_statement(statement, closed_block)
+        @table_parser.start
+        @table_parser.finish if statement.complete?
+        true
+      end
+
+      def start_frame?(statement, line)
+        return false unless @frame_parser.start?(line)
+        return false unless @context.current_frame.nil?
+
+        @frame_parser.start
+        @frame_parser.finish if statement.complete?
+        true
+      end
+
+      def start_paragraph?(statement, line)
+        return false unless @paragraph_parser.start?(line)
+        return false unless paragraph_allowed?
+
+        @paragraph_parser.start
+        @paragraph_parser.flush if statement.complete?
+        true
+      end
+
+      def continue_paragraph?(statement, closed_block)
+        return false unless @context.current_para
+
+        @paragraph_parser.parse_statement(statement, closed_block)
+        true
+      end
+
+      def continue_structure(statement, closed_block)
+        if @context.current_table
+          @table_parser.parse_statement(statement, closed_block)
+        elsif @context.current_frame
+          @frame_parser.parse_statement(statement, closed_block)
+        end
       end
 
       def paragraph_allowed?

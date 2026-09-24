@@ -6,26 +6,37 @@ Parses Adobe FrameMaker MIF files.
 document = MifParser.parse(io_or_string)
 
 document.each do |element|
-  # element.type         :heading | :body | :list | :table | :cell
+  # element.type         :heading | :body | :list | :table | :cell | :image
   # element.text         plain text
   # element.html_text    same text with <b> / <i> / <u>
 end
 ```
 
-Pipeline: **syntax** → **structure** (`Para` / `Tbl`) → **list classification** → typed elements.
+Pipeline: **syntax** → **structure** (`Para` / `Tbl` / `Frame`) → **list classification** → typed elements.
 
 MIF has no list construct; lists are inferred from tags and `PgfNumString` markers.
 
 ## Elements
 
-`Document` is enumerable (`#paragraphs`, `#lists`, `#tables`).
+`Document` is enumerable (`#paragraphs`, `#lists`, `#tables`, `#images`).
 
 | Class | Meaning |
 |---|---|
 | `Paragraph` | heading or body (`heading?`, `heading_level`) |
 | `List` | `:ol` / `:ul`, marker, level |
 | `Table` | `rows` is a grid of `Cell`s |
-| `Cell` | nested `Paragraph` / `List` |
+| `Cell` | nested `Paragraph` / `List` / `Image` |
+| `Image` | imported graphic reference (`file_name`, `angle`, `scale_x` / `scale_y`) |
+
+Images are `<AFrame>` anchors resolved against `<ImportObject>` / `<Inset>` in `<Frame>`. The gem does not read the image bytes; it exposes the file name/path plus placement:
+
+- `file_name` / `file_path` — `ImportObFile` and `ImportObFileDI` (or `InsetFile`)
+- `angle` — degrees from `<Angle>`
+- `scale_x` / `scale_y` — from `<ImportObScale>` / `<Scale>` when present (`50%` → `0.5`)
+- `width` / `height` — placed size in inches from `<ShapeRect>` / `<BRect>`
+- `dpi`, `flip_horizontal?`, `fixed_size?`
+
+Actual image files are expected to sit next to the MIF (or wherever `file_name` points).
 
 Heading and list levels are **0-based** (`Title1` / first list item → `0`). An explicit heading style wins over numbering (`Title4` stays 3 even if numbered `4.3`).
 

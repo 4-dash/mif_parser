@@ -61,10 +61,20 @@ def semantic_attributes(element)
     list?
     table?
     cell?
+    image?
     heading_level
     list_level
     list_marker
     list_type
+    file_name
+    file_path
+    angle
+    scale_x
+    scale_y
+    width
+    height
+    dpi
+    flip_horizontal
   ]
 
   names.each_with_object({}) do |name, result|

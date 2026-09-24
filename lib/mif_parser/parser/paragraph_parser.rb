@@ -7,12 +7,13 @@ require_relative "../format"
 require_relative "../text_run"
 require_relative "parsed_paragraph"
 require_relative "table_anchor"
+require_relative "frame_anchor"
 require_relative "property"
 
 module MifParser
   class Parser
-    # Reads <Para> blocks: PgfTag, PgfNumString, text, <ATbl> anchors,
-    # local <Pgf> format overlays, and inline <Font> runs.
+    # Reads <Para> blocks: PgfTag, PgfNumString, text, <ATbl> / <AFrame>
+    # anchors, local <Pgf> format overlays, and inline <Font> runs.
     class ParagraphParser
       def initialize(context)
         @context = context
@@ -48,11 +49,7 @@ module MifParser
           data.number_string = number_string
         end
 
-        table_id = TableAnchor.parse(line)
-        unless table_id.nil?
-          flush_paragraph_text_part(data)
-          data.parts << table_id
-        end
+        collect_anchors(data, line)
 
         collect_format_property(data, statement, tracker)
 
@@ -88,6 +85,18 @@ module MifParser
         return nil unless match
 
         Syntax::StringDecoder.decode(match[1])
+      end
+
+      def collect_anchors(data, line)
+        append_anchor(data, TableAnchor.parse(line))
+        append_anchor(data, FrameAnchor.parse(line))
+      end
+
+      def append_anchor(data, anchor)
+        return if anchor.nil?
+
+        flush_paragraph_text_part(data)
+        data.parts << anchor
       end
 
       def collect_format_property(data, statement, tracker)
@@ -159,7 +168,7 @@ module MifParser
         base_format = resolved_format(data)
 
         data.parts.each do |part|
-          if part.is_a?(TableAnchor)
+          if part.is_a?(TableAnchor) || part.is_a?(FrameAnchor)
             sink << part
             next
           end

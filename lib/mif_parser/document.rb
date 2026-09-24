@@ -27,6 +27,10 @@ module MifParser
       elements_of(Table)
     end
 
+    def images
+      elements_of(Image)
+    end
+
     def empty?
       elements.empty?
     end

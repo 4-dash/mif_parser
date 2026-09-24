@@ -1,0 +1,19 @@
+elements:
+  - class: MifParser::Paragraph
+    tag: Body
+    raw_text: "See the diagram."
+    type: body
+    text: "See the diagram."
+
+  - class: MifParser::Image
+    id: 7
+    type: image
+    image?: true
+    file_name: pump.tif
+    file_path: "c:\\Manuals\\Images\\pump.tif"
+    angle: 90.0
+    scale_x: 0.5
+    scale_y: 0.5
+    dpi: 300.0
+    flip_horizontal: true
+    text: pump.tif
